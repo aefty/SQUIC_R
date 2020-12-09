@@ -1,0 +1,15 @@
+Package: SQUIC
+Type: Package
+Title: Sparse Quadratic approximate Inverse Covariance matrix estimation.
+Version: 1.0
+Date: 2020-12-07
+Author: Who wrote it
+Maintainer: Who to complain to <yourfault@somewhere.net>
+Description: More about what it does (maybe more than one line)
+License: What license is it under?
+Imports: 
+    Rcpp (>= 1.0.1),
+    Matrix,
+    MASS,
+    BigQuic
+LinkingTo: Rcpp, RcppArmadillo

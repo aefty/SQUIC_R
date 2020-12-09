@@ -1,0 +1,55 @@
+
+## With R 3.1.0 or later, you can uncomment the following line to tell R to 
+## enable compilation with C++11 (where available)
+##
+## Also, OpenMP support in Armadillo prefers C++11 support. However, for wider
+## availability of the package we do not yet enforce this here.  It is however
+## recommended for client packages to set it.
+##
+## And with R 3.4.0, and RcppArmadillo 0.7.960.*, we turn C++11 on as OpenMP
+## support within Armadillo prefers / requires it
+
+#CXX_STD = CXX11
+#PKG_CXXFLAGS = $(SHLIB_OPENMP_CXXFLAGS) 
+#PKG_LIBS = $(SHLIB_OPENMP_CXXFLAGS) $(LAPACK_LIBS) $(BLAS_LIBS) $(FLIBS)
+
+
+PLATFORM:=$(shell echo $$OSTYPE)
+PATH_TO_libSQUIC:=${HOME}
+FILE_libSQUIC:=
+
+# For Mac
+ifeq (${PLATFORM},	$(filter ${PLATFORM}, darwin17 darwin19))
+ PATH_TO_libSQUIC:=${HOME}
+ FILE_libSQUIC:=libSQUIC.dylib
+ $(info	### ${PLATFORM} (MAC) detected. Expecting SQUIC shared library ${FILE_libSQUIC} at ${PATH_TO_libSQUIC} ###)
+else ifeq (${PLATFORM},	$(filter ${PLATFORM}, linux))
+ PATH_TO_libSQUIC:=${HOME}
+ FILE_libSQUIC:=libSQUIC.so
+ $(info	### ${GREEN} ${PLATFORM} (Linux) detected. Expecting SQUIC shared library ${FILE_libSQUIC} at ${PATH_TO_libSQUIC}  ###)
+else ifeq (${PLATFORM},	$(filter ${PLATFORM}, windows_notdone windows_notdone))
+ PATH_TO_libSQUIC:=${HOME}
+ FILE_libSQUIC:=libSQUIC.dll
+$(info	### ${GREEN} ${PLATFORM} (Windows) detected. Expecting SQUIC shared library ${FILE_libSQUIC} at ${PATH_TO_libSQUIC}  ###)
+else
+ $(error ### Platform not detected!###)
+endif
+
+FILE_PATH_TO_libSQUIC:=${PATH_TO_libSQUIC}/${FILE_libSQUIC}
+
+# check if file exists
+ifneq ("$(wildcard $(FILE_PATH_TO_libSQUIC) )","")
+ $(info	### ${FILE_PATH_TO_libSQUIC} found ! ###)
+else
+ $(error ### ${FILE_PATH_TO_libSQUIC} not found. Go to www.squic.com and download ... ###)
+endif
+
+
+CXX_STD = CXX11
+
+#-enable-shared-lib 
+
+PKG_CXXFLAGS = -lstdc++
+PKG_LIBS =  -L${PATH_TO_libSQUIC} -lSQUIC
+
+
