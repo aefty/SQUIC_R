@@ -16,9 +16,10 @@ The DESCRIPTION file:
 SQUIC stand for Sparse Quadradic Inverese covarnce matrix estimation ... balh.
 }
 \author{
-\packageAuthor{Matthias and Friends}
+Bob
+\packageAuthor{SQUIC}
 
-Maintainer: \packageMaintainer{ME}
+Maintainer: Jack \packageMaintainer{SQUIC}
 }
 \references{
 Large-scale Sparse Inverse Covariance Matrix Estimation, M.Bollhöfer, A. Eftekhari, S. Scheidegger, O. Schenk \url{https://epubs.siam.org/doi/abs/10.1137/17M1147615?journalCode=sjoce3}
