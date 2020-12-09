@@ -13,23 +13,29 @@
 The DESCRIPTION file:
 \packageDESCRIPTION{SQUIC}
 \packageIndices{SQUIC}
-~~ An overview of how to use the package, including the most important functions ~~
+SQUIC stand for Sparse Quadradic Inverese covarnce matrix estimation ... balh.
 }
 \author{
-\packageAuthor{SQUIC}
+\packageAuthor{Matthias and Friends}
 
-Maintainer: \packageMaintainer{SQUIC}
+Maintainer: \packageMaintainer{ME}
 }
 \references{
-~~ Literature or other references for background information ~~
+Large-scale Sparse Inverse Covariance Matrix Estimation, M.Bollhöfer, A. Eftekhari, S. Scheidegger, O. Schenk \url{https://epubs.siam.org/doi/abs/10.1137/17M1147615?journalCode=sjoce3}
+
+Large-scale Sparse Inverse Covariance Matrix Estimation, M.Bollhöfer, A. Eftekhari, S. Scheidegger, O. Schenk \url{https://epubs.siam.org/doi/abs/10.1137/17M1147615?journalCode=sjoce3}
+
+Large-scale Sparse Inverse Covariance Matrix Estimation, M.Bollhöfer, A. Eftekhari, S. Scheidegger, O. Schenk \url{https://epubs.siam.org/doi/abs/10.1137/17M1147615?journalCode=sjoce3}
+
+
 }
-~~ Optionally other standard keywords, one per line, from file KEYWORDS in the R ~~
-~~ documentation directory ~~
+Optionally other standard keywords, one per line, from file KEYWORDS in the R ~~
+documentation directory ~~
 \keyword{ package }
 \seealso{
-~~ Optional links to other man pages, e.g. ~~
+Optional links to other man pages, e.g. ~~
 ~~ \code{\link[<pkg>:<pkg>-package]{<pkg>}} ~~
 }
 \examples{
-~~ simple examples of the most important functions ~~
+simple examples of the most important functions
 }
