@@ -24,15 +24,21 @@ FILE_libSQUIC:=
 ifneq (,$(findstring darwin,$(PLATFORM)))
  PATH_TO_libSQUIC:=${HOME}
  FILE_libSQUIC:=libSQUIC.dylib
- $(info	### ${PLATFORM} (MAC) detected. Expecting SQUIC shared library ${FILE_libSQUIC} at ${PATH_TO_libSQUIC} ###)
+ $(info	###########################################################################################################)
+ $(info	### ${PLATFORM} (MAC) detected - expecting SQUIC shared library ${FILE_libSQUIC} at ${PATH_TO_libSQUIC} ###)
+ $(info	###########################################################################################################) 
 else ifneq (,$(findstring linux,$(PLATFORM)))	
  PATH_TO_libSQUIC:=${HOME}
  FILE_libSQUIC:=libSQUIC.so
- $(info	### ${PLATFORM} (Linux) detected. Expecting SQUIC shared library ${FILE_libSQUIC} at ${PATH_TO_libSQUIC}  ###)
+ $(info	#############################################################################################################) 
+ $(info	### ${PLATFORM} (Linux) detected - expecting SQUIC shared library ${FILE_libSQUIC} at ${PATH_TO_libSQUIC} ###)
+ $(info	#############################################################################################################)
 else ifneq (,$(findstring windows,$(PLATFORM)))
  PATH_TO_libSQUIC:=${HOME}
  FILE_libSQUIC:=libSQUIC.dll
-$(info	### ${PLATFORM} (Windows) detected. Expecting SQUIC shared library ${FILE_libSQUIC} at ${PATH_TO_libSQUIC}  ###)
+ $(info	###############################################################################################################) 
+ $(info	### ${PLATFORM} (Windows) detected - expecting SQUIC shared library ${FILE_libSQUIC} at ${PATH_TO_libSQUIC} ###)
+ $(info	###############################################################################################################)
 else
  $(error ### Platform not detected!###)
 endif
@@ -41,9 +47,14 @@ FILE_PATH_TO_libSQUIC:=${PATH_TO_libSQUIC}/${FILE_libSQUIC}
 
 # check if file exists
 ifneq ("$(wildcard $(FILE_PATH_TO_libSQUIC) )","")
+ $(info	########################################)	
  $(info	### ${FILE_PATH_TO_libSQUIC} found ! ###)
+ $(info	########################################) 
 else
- $(error ### ${FILE_PATH_TO_libSQUIC} not found. Go to www.squic.com and download ... ###)
+ $(info	################################################################################)
+ $(info ### ${FILE_PATH_TO_libSQUIC} not found. Go to www.squic.com and download ... ###)
+ $(info	################################################################################)
+ $(error Error: Exit)
 endif
 
 

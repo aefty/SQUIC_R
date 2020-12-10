@@ -5,12 +5,6 @@ usethis::use_package("BigQuic") # Use for multivriate data generation
 
 #usethis::use_package("https://cran.r-project.org/src/contrib/Archive/QUIC/QUIC_1.1.1.tar.gz", type="source")
 
-
-.onLoad <- function(libname, pkgname){
-
- print("online")
-}
-
 SQUIC <- function(Data, M, lambda, max_iter, drop_tol, term_tol, X0, W0) {
   
   mode_M<-1;
