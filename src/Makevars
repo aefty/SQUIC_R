@@ -13,6 +13,8 @@
 #PKG_CXXFLAGS = $(SHLIB_OPENMP_CXXFLAGS) 
 #PKG_LIBS = $(SHLIB_OPENMP_CXXFLAGS) $(LAPACK_LIBS) $(BLAS_LIBS) $(FLIBS)
 
+VERSION=1.2
+
 
 PLATFORM:=$(shell echo $$OSTYPE)
 PATH_TO_libSQUIC:=${HOME}
@@ -46,10 +48,11 @@ endif
 
 
 CXX_STD = CXX11
+PKG_CXXFLAGS =-lstdc++ -O3
+PKG_LIBS = -L${PATH_TO_libSQUIC}  -lSQUIC 
 
-#-enable-shared-lib 
 
-PKG_CXXFLAGS = -lstdc++
-PKG_LIBS =  -L${PATH_TO_libSQUIC} -lSQUIC
+all: $(SHLIB)
+	 @if command -v install_name_tool; then install_name_tool -change libSQUIC.dylib ${PATH_TO_libSQUIC}/libSQUIC.dylib $(SHLIB); fi
 
 
