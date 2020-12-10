@@ -19,18 +19,18 @@ PATH_TO_libSQUIC:=${HOME}
 FILE_libSQUIC:=
 
 # For Mac
-ifeq (${PLATFORM},	$(filter ${PLATFORM}, darwin17 darwin19))
+ifneq (,$(findstring darwin,$(PLATFORM)))
  PATH_TO_libSQUIC:=${HOME}
  FILE_libSQUIC:=libSQUIC.dylib
  $(info	### ${PLATFORM} (MAC) detected. Expecting SQUIC shared library ${FILE_libSQUIC} at ${PATH_TO_libSQUIC} ###)
-else ifeq (${PLATFORM},	$(filter ${PLATFORM}, linux))
+else ifneq (,$(findstring linux,$(PLATFORM)))	
  PATH_TO_libSQUIC:=${HOME}
  FILE_libSQUIC:=libSQUIC.so
- $(info	### ${GREEN} ${PLATFORM} (Linux) detected. Expecting SQUIC shared library ${FILE_libSQUIC} at ${PATH_TO_libSQUIC}  ###)
-else ifeq (${PLATFORM},	$(filter ${PLATFORM}, windows_notdone windows_notdone))
+ $(info	### ${PLATFORM} (Linux) detected. Expecting SQUIC shared library ${FILE_libSQUIC} at ${PATH_TO_libSQUIC}  ###)
+else ifneq (,$(findstring windows,$(PLATFORM)))
  PATH_TO_libSQUIC:=${HOME}
  FILE_libSQUIC:=libSQUIC.dll
-$(info	### ${GREEN} ${PLATFORM} (Windows) detected. Expecting SQUIC shared library ${FILE_libSQUIC} at ${PATH_TO_libSQUIC}  ###)
+$(info	### ${PLATFORM} (Windows) detected. Expecting SQUIC shared library ${FILE_libSQUIC} at ${PATH_TO_libSQUIC}  ###)
 else
  $(error ### Platform not detected!###)
 endif

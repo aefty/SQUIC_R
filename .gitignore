@@ -27,3 +27,4 @@
 .Rproj.user/*
 .Rhistory
 ^.*\.Rproj$
+.Rproj.user
