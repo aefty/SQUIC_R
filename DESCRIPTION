@@ -11,5 +11,6 @@ Imports:
     Rcpp (>= 1.0.1),
     Matrix,
     MASS,
-    BigQuic
+    BigQuic,
+    MLmetrics
 LinkingTo: Rcpp, RcppArmadillo

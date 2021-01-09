@@ -3,99 +3,127 @@
 #include "RcppArmadillo.h"
 #include <stdio.h>
 #include <assert.h>
+#include <algorithm>
+
 // [[Rcpp::depends(RcppArmadillo)]]
 // [[Rcpp::plugins(cpp11)]]
-
-
 
 // SQUIC is fixed with type: long in (This is a requirement for Cholmod)
 #define integer long
 // SQUIC Library iterface
-extern "C" {
+
+extern "C"
+{
+
     void SQUIC_C(
-        // Inputs
-        integer p, integer n, double *Y,
-        double lambda,
-        integer *M_i, integer *M_j, double *M_val, integer M_nnz,
-        int max_iter, double drop_tol, double term_tol, int verbose, bool matrix_format_coo,
-        // input/output
+        // Number of random variables
+        integer p,
+        // Training dataset
+        integer n_train, double *data_train,
+        // Testing dataset
+        integer n_test, double *data_test,
+        // Regulaization Term
+        double lambda, integer *M_i, integer *M_j, double *M_val, integer M_nnz,
+        // Optimization Paramters
+        int max_iter, double drop_tol, double term_tol, int verbose,
+        // Intial X0 and W0 are provided, and the end of the routing the final values of X and W are written
         integer *&X_i, integer *&X_j, double *&X_val, integer &X_nnz,
         integer *&W_i, integer *&W_j, double *&W_val, integer &W_nnz,
-        //outputs
+        // Run statistics and information
         int &info_num_iter,
-        double *info_times,     // length must be 6: [total_time,cov_time,itr_cumtime,chol_cumtime,inv_cumtime,upd_cumtime]
+        double *info_times,     // length must be 7: [total_time,cov_time,itr_cumtime,chol_cumtime,inv_cumtime,lns_cumtime,upd_cumtime]
         double *info_objective, // length must be size max_iter
         double &info_dgap,
-        double &info_logdetx);
+        double &info_logdetx,
+        double &info_trXS_test);
 }
 
 using namespace Rcpp;
 using namespace arma;
 
-
 // [[Rcpp::export]]
-List SQUIC_BASE(int mode_M, int mode_X0W0, arma::mat & Data, arma::sp_mat & M, double lambda, int max_iter, double drop_tol, double term_tol, arma::sp_mat & X0, arma::sp_mat & W0) {
+List SQUIC_BASE(arma::ivec &mode, arma::mat &data_train, double lambda, int max_iter, double drop_tol, double term_tol, arma::sp_mat &M, arma::sp_mat &X0, arma::sp_mat &W0, arma::mat &data_test, int verbose)
+{
 
-    integer p = Data.n_rows;
-    integer n = Data.n_cols;
+    // Set SQUIC runtime mode
+    bool mode_M_provided = mode[0] > 0;
+    bool mode_X0W0_provided = mode[1] > 0;
+    bool mode_data_test_provided = mode[2] > 0;
 
-    // Matricies must be the correct dimension
-    if (p < 2) {
-        stop(" The number of random variables 'p' must be larger than 1");
+    // Get the key size parameters
+    integer p = data_train.n_rows;
+    integer n_train = data_train.n_cols;
+    integer n_test = -1;
+
+    if (p < 2) // Only work iwth matrices
+    {
+        stop(" The number of random variables 'p' must be larger than 1.");
     }
 
-    // Make Matricies
-    integer* M_i;
-    integer* M_j;
-    double* M_val;
+    // Make matrix pointers
+    integer *M_i;
+    integer *M_j;
+    double *M_val;
     integer M_nnz = -1;
 
-    integer* X_i;
-    integer* X_j;
-    double* X_val;
+    integer *X_i;
+    integer *X_j;
+    double *X_val;
     integer X_nnz = -1;
 
-    integer* W_i;
-    integer* W_j;
-    double* W_val;
+    integer *W_i;
+    integer *W_j;
+    double *W_val;
     integer W_nnz = -1;
 
+    if (mode_data_test_provided) //Case mode[2]>0: We are going to use the test data
+    {
+        n_test = data_test.n_cols;
 
-    // mode_M==TRUE : M is provided
-    if (mode_M == 1) {
+        if (data_test.n_rows != data_train.n_rows) // Matricies must be the correct dimension
+        {
+            stop(" The number of random variables 'p' must equal for both training and testing datasets.");
+        }
 
+        if (n_test < 1) // Matricies must be the correct dimension
+        {
+            stop(" The testing datasets is empty.");
+        }
+    }
+
+    if (mode_M_provided) //Case mode[0]>0: We are given the M matrix
+    {
         M.sync();
 
         // Matricies must be the correct dimension
-        if (p != M.n_rows && p != M.n_cols ) {
+        if (p != M.n_rows && p != M.n_cols)
+        {
             stop("Matrix M must be of size (pxp) p=%d", p);
         }
-
 
         M_nnz = M.n_nonzero;
         auto M_row_indices = arma::access::rwp(M.row_indices);
         auto M_col_ptrs = arma::access::rwp(M.col_ptrs);
         auto M_values = arma::access::rwp(M.values);
 
-        M_i  = new integer[M_nnz];
-        M_j  = new integer[p + 1];
+        M_i = new integer[M_nnz];
+        M_j = new integer[p + 1];
         M_val = new double[M_nnz];
 
-        for (integer i = 0; i < M_nnz; ++i) {
+        for (integer i = 0; i < M_nnz; ++i)
+        {
             M_i[i] = M_row_indices[i];
             M_val[i] = M_values[i];
         }
 
-        for (integer i = 0; i < p + 1; ++i) {
+        for (integer i = 0; i < p + 1; ++i)
+        {
             M_j[i] = M_col_ptrs[i];
         }
     }
 
-
-
-    // Mode[1]==TRUE: Both X0 or W0 are provided
-    if (mode_X0W0 == 1) {
-
+    if (mode_X0W0_provided) //Case mode[1]>0: We are BOTH X0 and W0
+    {
         X0.sync();
         W0.sync();
         X_nnz = X0.n_nonzero;
@@ -104,16 +132,20 @@ List SQUIC_BASE(int mode_M, int mode_X0W0, arma::mat & Data, arma::sp_mat & M, d
         // ERROR CHECKS
         {
             // Matricies must be the correct dimension
-            if (p != X0.n_rows && p != X0.n_cols ) {
-                if (mode_M) {
+            if (p != X0.n_rows && p != X0.n_cols)
+            {
+                if (mode_M_provided)
+                {
                     delete[] M_i;
                     delete[] M_j;
                     delete[] M_val;
                 }
                 stop("Matrix X0 must be of size (pxp) p=%d.", p);
             }
-            if (p != W0.n_rows && p != W0.n_cols ) {
-                if (mode_M) {
+            if (p != W0.n_rows && p != W0.n_cols)
+            {
+                if (mode_M_provided)
+                {
                     delete[] M_i;
                     delete[] M_j;
                     delete[] M_val;
@@ -121,8 +153,10 @@ List SQUIC_BASE(int mode_M, int mode_X0W0, arma::mat & Data, arma::sp_mat & M, d
                 stop("Matrix X0 must be of size (pxp) p=%d.", p);
             }
 
-            if (X_nnz < p) {
-                if (mode_M) {
+            if (X_nnz < p)
+            {
+                if (mode_M_provided)
+                {
                     delete[] M_i;
                     delete[] M_j;
                     delete[] M_val;
@@ -130,8 +164,10 @@ List SQUIC_BASE(int mode_M, int mode_X0W0, arma::mat & Data, arma::sp_mat & M, d
                 stop("Matrix X0 must be at least diagional (X0.nnz >= p).");
             }
 
-            if (W_nnz < p) {
-                if (mode_M) {
+            if (W_nnz < p)
+            {
+                if (mode_M_provided)
+                {
                     delete[] M_i;
                     delete[] M_j;
                     delete[] M_val;
@@ -140,76 +176,74 @@ List SQUIC_BASE(int mode_M, int mode_X0W0, arma::mat & Data, arma::sp_mat & M, d
             }
         }
 
-
         // X0 data structure
         auto X_row_indices = arma::access::rwp(X0.row_indices);
         auto X_col_ptrs = arma::access::rwp(X0.col_ptrs);
         auto X_values = arma::access::rwp(X0.values);
 
-        X_i  = new integer[X_nnz];
-        X_j  = new integer[p + 1];
+        X_i = new integer[X_nnz];
+        X_j = new integer[p + 1];
         X_val = new double[X_nnz];
 
-        for (integer i = 0; i < X_nnz; ++i) {
+        for (integer i = 0; i < X_nnz; ++i)
+        {
             X_i[i] = X_row_indices[i];
             X_val[i] = X_values[i];
         }
 
-        for (integer i = 0; i < p + 1; ++i) {
+        for (integer i = 0; i < p + 1; ++i)
+        {
             X_j[i] = X_col_ptrs[i];
         }
-
 
         // W0 data structure
         auto W_row_indices = arma::access::rwp(W0.row_indices);
         auto W_col_ptrs = arma::access::rwp(W0.col_ptrs);
         auto W_values = arma::access::rwp(W0.values);
 
-        W_i  = new integer[W_nnz];
-        W_j  = new integer[p + 1];
+        W_i = new integer[W_nnz];
+        W_j = new integer[p + 1];
         W_val = new double[W_nnz];
 
-        for (integer i = 0; i < W_nnz; ++i) {
+        for (integer i = 0; i < W_nnz; ++i)
+        {
             W_i[i] = W_row_indices[i];
             W_val[i] = W_values[i];
         }
 
-        for (integer i = 0; i < p + 1; ++i) {
+        for (integer i = 0; i < p + 1; ++i)
+        {
             W_j[i] = W_col_ptrs[i];
         }
     }
 
-    int info_num_iter = -1;
-    double info_dgap;
-    double info_logdetx;
-    arma::Col<double> info_times(6);
-    info_times.fill(-1.0);
-    arma::Col<double> info_objective(max_iter);
-    info_objective.fill(-1.0);
+    // Default Result Values
+    int info_num_iter = -1;                                  // Number of Newten steps required by SQUIC
+    double info_dgap = -1e-12;                               // Duality Gap between primal and dual
+    double info_logdetx = -1e-12;                            // Can be used for likelilook (AIC or BIC) computation of test data
+    double info_trXS_test = -1e-12;                          // Can be used for likelilook (AIC or BIC) computation of test data
+    arma::Col<double> info_times(6);                         // This need to be of size 6
+    arma::Col<double> info_objective(std::max(1, max_iter)); // The objective value list, must be of size max(max_iter,1). If max_iter=0, we still keep this with size of 1
 
-
-    // hard code this for now ...
-    int verbose = 1;
-
-
+    // Run SQUIC
     SQUIC_C(
-        p, n, Data.memptr(),
-        lambda,
-        M_i, M_j, M_val, M_nnz,
-        max_iter, drop_tol, term_tol, verbose, false,
+        p,
+        n_train, data_train.memptr(),
+        n_test, data_test.memptr(),
+        lambda, M_i, M_j, M_val, M_nnz,
+        max_iter, drop_tol, term_tol, verbose,
         X_i, X_j, X_val, X_nnz,
         W_i, W_j, W_val, W_nnz,
         info_num_iter,
         info_times.memptr(),
         info_objective.memptr(),
         info_dgap,
-        info_logdetx
-    );
+        info_logdetx,
+        info_trXS_test);
 
-    // Delete the number o f
-    info_objective.resize(info_num_iter);
+    info_objective.resize(std::max(info_num_iter, 1)); // Resize objective value list to be equatil to info_num_iter
 
-    // create sp_mat object of appropriate size
+    // Copy data it standard format
     // In order to access the internal arrays of the SpMat class call .sync()
     arma::SpMat<double> iC(p, p);
     arma::SpMat<double> C(p, p);
@@ -221,23 +255,30 @@ List SQUIC_BASE(int mode_M, int mode_X0W0, arma::mat & Data, arma::sp_mat & M, d
     C.mem_resize(W_nnz);
 
     // Copying elements
-    std::copy(X_i  , X_i + X_nnz  , arma::access::rwp(iC.row_indices));
-    std::copy(X_j  , X_j + p + 1  , arma::access::rwp(iC.col_ptrs));
+    std::copy(X_i, X_i + X_nnz, arma::access::rwp(iC.row_indices));
+    std::copy(X_j, X_j + p + 1, arma::access::rwp(iC.col_ptrs));
     std::copy(X_val, X_val + X_nnz, arma::access::rwp(iC.values));
+    arma::access::rw(iC.n_rows) = p;
+    arma::access::rw(iC.n_cols) = p;
+    arma::access::rw(iC.n_nonzero) = X_nnz;
 
-    std::copy(W_i  , W_i + W_nnz  , arma::access::rwp(C.row_indices));
-    std::copy(W_j  , W_j + p + 1  , arma::access::rwp(C.col_ptrs));
+    std::copy(W_i, W_i + W_nnz, arma::access::rwp(C.row_indices));
+    std::copy(W_j, W_j + p + 1, arma::access::rwp(C.col_ptrs));
     std::copy(W_val, W_val + W_nnz, arma::access::rwp(C.values));
+    arma::access::rw(C.n_rows) = p;
+    arma::access::rw(C.n_cols) = p;
+    arma::access::rw(C.n_nonzero) = W_nnz;
 
     // Delete Buffers
-    if (mode_M == true) {
+    if (mode_M_provided)
+    {
         delete[] M_i;
         delete[] M_j;
         delete[] M_val;
-
     }
 
-    if (mode_X0W0 == true) {
+    if (mode_X0W0_provided)
+    {
         delete[] X_i;
         delete[] X_j;
         delete[] X_val;
@@ -247,18 +288,46 @@ List SQUIC_BASE(int mode_M, int mode_X0W0, arma::mat & Data, arma::sp_mat & M, d
         delete[] W_val;
     }
 
-    return Rcpp::List::create(
-               Named("iC") = iC,
-               Named("C") = C,
-               Named("info_time_total")       = info_times[0],
-               Named("info_time_impcov")      = info_times[1],
-               Named("info_time_optimz")      = info_times[2],
-               Named("info_time_factor")      = info_times[3],
-               Named("info_time_aprinv")      = info_times[4],
-               Named("info_time_updte")       = info_times[5],
-               Named("info_objective")        = info_objective,
-               Named("info_dgap")             = info_dgap,
-               Named("info_logdetx")          = info_logdetx
-           );
-}
+    if (max_iter == 0) // Special max_iter==0: SQUIC only compute the sparse sample covariance S
+    {
+        return Rcpp::List::create(
+            Named("S") = C,
+            Named("info_time_total") = info_times[0],
+            Named("info_time_impcov") = info_times[1]);
+    }
+    else // Regular case return all values
+    {
 
+        if (mode_data_test_provided)
+        {
+            return Rcpp::List::create(
+                Named("X") = iC,
+                Named("W") = C,
+                Named("info_time_total") = info_times[0],
+                Named("info_time_impcov") = info_times[1],
+                Named("info_time_optimz") = info_times[2],
+                Named("info_time_factor") = info_times[3],
+                Named("info_time_aprinv") = info_times[4],
+                Named("info_time_updte") = info_times[5],
+                Named("info_objective") = info_objective,
+                Named("info_duality_gap") = info_dgap,
+                Named("info_logdetX") = info_logdetx,
+                Named("info_trXS_test") = info_trXS_test);
+        }
+        {
+            // no info_trXS_test ouput
+            return Rcpp::List::create(
+                Named("X") = iC,
+                Named("W") = C,
+                Named("info_time_total") = info_times[0],
+                Named("info_time_impcov") = info_times[1],
+                Named("info_time_optimz") = info_times[2],
+                Named("info_time_factor") = info_times[3],
+                Named("info_time_aprinv") = info_times[4],
+                Named("info_time_updte") = info_times[5],
+                Named("info_objective") = info_objective,
+                Named("info_duality_gap") = info_dgap,
+                Named("info_logdetX") = info_logdetx);
+        }
+    }
+}

@@ -7,28 +7,29 @@
 using namespace Rcpp;
 
 // SQUIC_BASE
-List SQUIC_BASE(int mode_M, int mode_X0W0, arma::mat& Data, arma::sp_mat& M, double lambda, int max_iter, double drop_tol, double term_tol, arma::sp_mat& X0, arma::sp_mat& W0);
-RcppExport SEXP _SQUIC_SQUIC_BASE(SEXP mode_MSEXP, SEXP mode_X0W0SEXP, SEXP DataSEXP, SEXP MSEXP, SEXP lambdaSEXP, SEXP max_iterSEXP, SEXP drop_tolSEXP, SEXP term_tolSEXP, SEXP X0SEXP, SEXP W0SEXP) {
+List SQUIC_BASE(arma::ivec& mode, arma::mat& data_train, double lambda, int max_iter, double drop_tol, double term_tol, arma::sp_mat& M, arma::sp_mat& X0, arma::sp_mat& W0, arma::mat& data_test, int verbose);
+RcppExport SEXP _SQUIC_SQUIC_BASE(SEXP modeSEXP, SEXP data_trainSEXP, SEXP lambdaSEXP, SEXP max_iterSEXP, SEXP drop_tolSEXP, SEXP term_tolSEXP, SEXP MSEXP, SEXP X0SEXP, SEXP W0SEXP, SEXP data_testSEXP, SEXP verboseSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< int >::type mode_M(mode_MSEXP);
-    Rcpp::traits::input_parameter< int >::type mode_X0W0(mode_X0W0SEXP);
-    Rcpp::traits::input_parameter< arma::mat& >::type Data(DataSEXP);
-    Rcpp::traits::input_parameter< arma::sp_mat& >::type M(MSEXP);
+    Rcpp::traits::input_parameter< arma::ivec& >::type mode(modeSEXP);
+    Rcpp::traits::input_parameter< arma::mat& >::type data_train(data_trainSEXP);
     Rcpp::traits::input_parameter< double >::type lambda(lambdaSEXP);
     Rcpp::traits::input_parameter< int >::type max_iter(max_iterSEXP);
     Rcpp::traits::input_parameter< double >::type drop_tol(drop_tolSEXP);
     Rcpp::traits::input_parameter< double >::type term_tol(term_tolSEXP);
+    Rcpp::traits::input_parameter< arma::sp_mat& >::type M(MSEXP);
     Rcpp::traits::input_parameter< arma::sp_mat& >::type X0(X0SEXP);
     Rcpp::traits::input_parameter< arma::sp_mat& >::type W0(W0SEXP);
-    rcpp_result_gen = Rcpp::wrap(SQUIC_BASE(mode_M, mode_X0W0, Data, M, lambda, max_iter, drop_tol, term_tol, X0, W0));
+    Rcpp::traits::input_parameter< arma::mat& >::type data_test(data_testSEXP);
+    Rcpp::traits::input_parameter< int >::type verbose(verboseSEXP);
+    rcpp_result_gen = Rcpp::wrap(SQUIC_BASE(mode, data_train, lambda, max_iter, drop_tol, term_tol, M, X0, W0, data_test, verbose));
     return rcpp_result_gen;
 END_RCPP
 }
 
 static const R_CallMethodDef CallEntries[] = {
-    {"_SQUIC_SQUIC_BASE", (DL_FUNC) &_SQUIC_SQUIC_BASE, 10},
+    {"_SQUIC_SQUIC_BASE", (DL_FUNC) &_SQUIC_SQUIC_BASE, 11},
     {NULL, NULL, 0}
 };
 
