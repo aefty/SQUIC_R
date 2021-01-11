@@ -117,7 +117,6 @@ SQUIC_DEMO.cv <- function(type="trid",criterion="LL", p_power=5, n=100, K=4, lam
 #done
 SQUIC_DEMO.performance <- function(type="trid",lambda=0.4,n=100,tol=1e-4,max_iter=10) {
 
-
     #Hard coded values
     p_power_max<-6;
 
@@ -173,8 +172,6 @@ SQUIC_DEMO.drop_tol <- function(type="trid",p_power=5,n=100,lambda=0.3,term_tol=
 	nnz_W		<-replicate(drop_tol_max_power, 0);
 	nnz_X		<-replicate(drop_tol_max_power, 0);	
 	norm_f_XW	<-replicate(drop_tol_max_power, 0);	
-
-    
 
 	# Generate data
 	out<-SQUIC::SQUIC_DEMO.load_data(type=type ,p_power=p_power ,n=n ,normalized=TRUE);

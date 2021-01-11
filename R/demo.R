@@ -53,7 +53,6 @@ SQUIC_DEMO.data<-function(type="trid",p_power=5,n=100,normalized=TRUE)
 	}
 
 	# Generate data
-    print(sprintf("# Generating data ..."));
 	mu_star <- replicate(p, 0);
  	data <- MASS::mvrnorm(n, mu_star, C_star, tol = 1e-2, empirical = FALSE, EISPACK = FALSE);
 	data <- Matrix::t(data);
@@ -66,7 +65,7 @@ SQUIC_DEMO.data<-function(type="trid",p_power=5,n=100,normalized=TRUE)
 	}
 
 	finish_time <- Sys.time()
-	print(sprintf("# Generating data finished: time=%f",finish_time-start_time));
+	print(sprintf("# Generating Data: time=%f",finish_time-start_time));
 
 	output <- list(
 		"data" = data, 
@@ -76,3 +75,48 @@ SQUIC_DEMO.data<-function(type="trid",p_power=5,n=100,normalized=TRUE)
 
 	return(output);
 }
+
+SQUIC_DEMO.performance <- function(type="trid",lambda=0.4,n=100,tol=1e-4,max_iter=10) {
+
+    #Hard coded values
+    p_power_max<-6;
+
+	time_squic		<-replicate(p_power_max, 0);
+	time_equal		<-replicate(p_power_max, 0);	
+	time_bigquic	<-replicate(p_power_max, 0);
+	time_quic		<-replicate(p_power_max, 0);
+
+	for (i in 1:p_power_max) {
+
+        p_power=i
+
+        # Generate data
+	    out<-SQUIC::SQUIC_DEMO.data(type=type ,p_power=p_power ,n=n ,normalized=TRUE);
+	    X_star<-out$X_star;
+	    data_full<-out$data;
+
+		print(sprintf("Benchmark for p=%d started",4^p_power));
+
+		out<-SQUIC::SQUIC_DEMO.compare(alg="SQUIC" , data_full=data_full , lambda=lambda ,tol=tol , max_iter=max_iter ,  M=NULL,  X_star=NULL, erbose = 0);
+		time_squic[i]<-out$time;
+
+		out<-SQUIC::SQUIC_DEMO.compare(alg="EQUAL" , data_full=data_full ,  lambda=lambda ,tol=tol , max_iter=max_iter ,  M=NULL, X_star=NULL, verbose = 0);
+		time_equal[i]<-out$time;
+
+		out<-SQUIC::SQUIC_DEMO.compare(alg="BigQuic",data_full=data_full , lambda=lambda , tol=tol , max_iter=max_iter ,  M=NULL, X_star=NULL, verbose = 0);
+		time_bigquic[i]<-out$time;
+
+		out<-SQUIC::SQUIC_DEMO.compare(alg="QUIC" ,  data_full=data_full , lambda=lambda , tol=tol , max_iter=max_iter ,  M=NULL, X_star=NULL, verbose = 0);
+		time_quic[i]<-out$time;			
+	}
+
+	output <- list(
+		"time_squic"   			= time_squic, 
+		"time_equal" 			= time_equal, 
+		"time_bigquic" 			= time_bigquic, 		
+		"time_quic" 			= time_quic 			
+		)
+
+	return(output);
+}
+

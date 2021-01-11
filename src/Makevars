@@ -15,7 +15,6 @@
 
 VERSION=1.2
 
-
 PLATFORM:=$(shell echo $$OSTYPE)
 PATH_TO_libSQUIC:=${HOME}
 FILE_libSQUIC:=
@@ -47,11 +46,9 @@ else
  $(error Error: Exit)
 endif
 
-
 CXX_STD = CXX11
-PKG_CXXFLAGS =-O3
+PKG_CXXFLAGS =-O3 # will defualt back to -O2
 PKG_LIBS = -L${PATH_TO_libSQUIC} -lSQUIC 
-
 
 all: $(SHLIB)
 	 @if command -v install_name_tool; then install_name_tool -change libSQUIC.dylib ${PATH_TO_libSQUIC}/libSQUIC.dylib $(SHLIB); fi
