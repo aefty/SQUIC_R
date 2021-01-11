@@ -49,7 +49,7 @@ endif
 
 
 CXX_STD = CXX11
-PKG_CXXFLAGS = -O3
+PKG_CXXFLAGS =-lstdc++
 PKG_LIBS = -L${PATH_TO_libSQUIC} -lSQUIC 
 
 
