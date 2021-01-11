@@ -1,4 +1,4 @@
-SQUIC_DEMO.data<-function(type="trid",p_power=5,n=100,normalized==TRUE)
+SQUIC_DEMO.data<-function(type="trid",p_power=5,n=100,normalized=TRUE)
 {
 
 	set.seed(1);
