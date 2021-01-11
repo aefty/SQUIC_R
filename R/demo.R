@@ -1,4 +1,4 @@
-SQUIC_DEMO.data<-function(type="trid",p_power=5,n=100)
+SQUIC_DEMO.data<-function(type="trid",p_power=5,n=100,normalized==TRUE)
 {
 
 	set.seed(1);
@@ -53,10 +53,17 @@ SQUIC_DEMO.data<-function(type="trid",p_power=5,n=100)
 	}
 
 	# Generate data
-    print(sprintf("# Generating data ...",type,p,n,normalized));
+    print(sprintf("# Generating data ..."));
 	mu_star <- replicate(p, 0);
  	data <- MASS::mvrnorm(n, mu_star, C_star, tol = 1e-2, empirical = FALSE, EISPACK = FALSE);
 	data <- Matrix::t(data);
+
+	if(normalized==TRUE){
+		for (i in 1:p) {
+			sd_data<-sd(data[i,]);
+			data[i,]<-data[i,]/sd_data;
+		}
+	}
 
 	finish_time <- Sys.time()
 	print(sprintf("# Generating data finished: time=%f",finish_time-start_time));
