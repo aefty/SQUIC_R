@@ -1,4 +1,4 @@
-SQUIC_DEMO.data<-function(type="trid",p_power=5,n=100,normalized=TRUE)
+DEMO.data<-function(type="trid",p_power=5,n=100,normalized=TRUE)
 {
 
 	set.seed(1);
@@ -76,7 +76,8 @@ SQUIC_DEMO.data<-function(type="trid",p_power=5,n=100,normalized=TRUE)
 	return(output);
 }
 
-SQUIC_DEMO.performance <- function(type="trid",lambda=0.4,n=100,tol=1e-4,max_iter=10) {
+DEMO.performance <- function(type="trid",lambda=0.4,n=100,tol=1e-4,max_iter=10) 
+{
 
     #Hard coded values
     p_power_max<-6;
@@ -120,3 +121,69 @@ SQUIC_DEMO.performance <- function(type="trid",lambda=0.4,n=100,tol=1e-4,max_ite
 	return(output);
 }
 
+DEMO.compare <- function(alg,data_full,lambda=0.5,tol=1e-4,max_iter=10, X_star= NULL) 
+{
+	data_full_t <- Matrix::t(data_full);
+
+	 verbose = 1;
+
+	time_start <- Sys.time()
+	if(alg=="QUIC")
+	{
+		print("#QUIC")
+		# QUIC
+		out	<-QUIC::QUIC(S=cov(data_full_t), rho=lambda, path = NULL, tol = tol, msg = verbose, maxIter = max_iter, X.init =NULL, W.init = NULL)
+		X	<-out$X;
+	}
+	else if(alg=="BigQuic")
+	{
+		print("#BigQuic")
+		# BigQuic
+		out	<-BigQuic::BigQuic(X = data_full_t, inputFileName = NULL, outputFileName = NULL, lambda = lambda, numthreads = 8, maxit = max_iter, epsilon = tol, k = 0, memory_size = 8000, verbose = verbose, isnormalized = 1, seed = NULL, use_ram = TRUE);
+		X	<-out$precision_matrices[[1]];
+	}
+	else if(alg=="SQUIC")
+	{
+		print("#SQUIC")
+		# SQUIC
+		out	<-SQUIC::SQUIC(data_train=data_full,lambda=lambda, max_iter=max_iter, drop_tol=tol/2, term_tol=tol, verbose=verbose);
+		X	<-out$X;
+	}
+	else if(alg=="EQUAL")
+	{
+		print("#EQUAL")
+		# EQUAL
+		out	<-EQUAL::EQUAL(X=data_full_t,type=TRUE,sdiag=FALSE,lambda=lambda,lambda.min=sqrt(log(ncol(data_full_t))/nrow(data_full_t)),nlambda=1,err=tol,maxIter =max_iter,rho=1)
+		X	<-out$Omega[[1]];
+	}
+	else
+	{
+		stop("Algorithem not found");
+	};
+	
+	time_end	<- Sys.time()
+
+	if(!is.null(X_star))
+	{
+		# Convert matrix to labels
+        print("#Computing F1 Score & Accuracy")
+		X_label <-  as.vector( ((X)!=0)*1 );
+		X_star_label <-  as.vector( ((X_star)!=0)*1 );
+
+		output <- list(
+			"time" = time_end-time_start,
+			"X" = X, 
+			"f1" = MLmetrics::F1_Score(X_star_label,X_label, positive = "1"),
+			"acc" = MLmetrics::Accuracy(X_star_label,X_label)				
+		);
+	}else{
+		# Convert matrix to labels
+		output <- list(
+			"X" = X, 
+			"time" = time_end-time_start	
+		);
+
+	}
+
+	return(output);
+}
