@@ -45,7 +45,7 @@ using namespace Rcpp;
 using namespace arma;
 
 // [[Rcpp::export]]
-List SQUIC_RR(arma::mat &data_train, double lambda, int max_iter, double drop_tol, double term_tol, int verbose, int mode, arma::sp_mat &M, arma::sp_mat &X0, arma::sp_mat &W0, arma::mat &data_test)
+List SQUIC_R(arma::mat &data_train, double lambda, int max_iter, double drop_tol, double term_tol, int verbose, int mode, arma::sp_mat &M, arma::sp_mat &X0, arma::sp_mat &W0, arma::mat &data_test)
 {
 
     // Set SQUIC runtime mode
@@ -234,12 +234,13 @@ List SQUIC_RR(arma::mat &data_train, double lambda, int max_iter, double drop_to
         p,
         n_train, data_train.memptr(),
         n_test, data_test.memptr(),
-        lambda, M_i, M_j, M_val, M_nnz,
+        lambda,
+        M_i, M_j, M_val, M_nnz,
         max_iter, drop_tol, term_tol, verbose,
         X_i, X_j, X_val, X_nnz,
         W_i, W_j, W_val, W_nnz,
         info_num_iter,
-        info_times.memptr(),
+        &info_times.memptr(),
         info_objective.memptr(),
         info_dgap,
         info_logdetx,
