@@ -1,4 +1,4 @@
-DEMO.data<-function(type="trid",p_power=5,n=100,normalized=TRUE)
+demo.data<-function(type="trid",p_power=5,n=100,normalized=TRUE)
 {
 
 	set.seed(1);
@@ -76,7 +76,7 @@ DEMO.data<-function(type="trid",p_power=5,n=100,normalized=TRUE)
 	return(output);
 }
 
-DEMO.performance <- function(type="trid",lambda=0.4,n=100,tol=1e-4,max_iter=10) 
+demo.performance <- function(type="trid",lambda=0.4,n=100,tol=1e-4,max_iter=10) 
 {
 
     #Hard coded values
@@ -121,7 +121,7 @@ DEMO.performance <- function(type="trid",lambda=0.4,n=100,tol=1e-4,max_iter=10)
 	return(output);
 }
 
-DEMO.compare <- function(alg,data_full,lambda=0.5,tol=1e-4,max_iter=10, X_star= NULL) 
+demo.compare <- function(alg,data_full,lambda=0.5,tol=1e-4,max_iter=10, X_star= NULL) 
 {
 	data_full_t <- Matrix::t(data_full);
 
