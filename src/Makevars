@@ -48,9 +48,9 @@ endif
 
 CXX_STD = CXX11
 PKG_CXXFLAGS =-O3 # will defualt back to -O2
-PKG_LIBS = -L${PATH_TO_libSQUIC} -lSQUIC -Wl,-rpath,${PATH_TO_libSQUIC} -L${PATH_TO_libSQUIC} -lSQUIC
+PKG_LIBS = -L${PATH_TO_libSQUIC} -lSQUIC 
 
-#all: $(SHLIB)
-	# @if command -v install_name_tool; then install_name_tool -change libSQUIC.dylib ${PATH_TO_libSQUIC}/libSQUIC.dylib $(SHLIB); fi
+all: $(SHLIB)
+	 @if command -v install_name_tool; then install_name_tool -change libSQUIC.dylib ${PATH_TO_libSQUIC}/libSQUIC.dylib $(SHLIB); fi
 
 
