@@ -246,9 +246,6 @@ List SQUIC_R(arma::mat &data_train, double lambda, int max_iter, double drop_tol
         info_logdetx,
         info_trXS_test);
 
-    //Copy
-    arma::Col<double> info_objective(info_num_iter, info_num_iter);
-
     // Copy data it standard format
     // In order to access the internal arrays of the SpMat class call .sync()
     arma::SpMat<double> iC(p, p);
@@ -281,23 +278,26 @@ List SQUIC_R(arma::mat &data_train, double lambda, int max_iter, double drop_tol
     {
         output = Rcpp::List::create(
             Named("S") = C,
-            Named("info_time_total") = info_times[0],
-            Named("info_time_impcov") = info_times[1]);
+            Named("info_time_total") = info_times_buffer[0],
+            Named("info_time_impcov") = info_times_buffer[1]);
     }
     else // Regular case return all values
     {
+
+        //Copy info_objective_buffer keeping only info_num_iter elements
+        arma::Col<double> info_objective(info_objective_buffer, info_num_iter);
 
         if (mode_data_test_provided)
         {
             output = Rcpp::List::create(
                 Named("X") = iC,
                 Named("W") = C,
-                Named("info_time_total") = info_times[0],
-                Named("info_time_impcov") = info_times[1],
-                Named("info_time_optimz") = info_times[2],
-                Named("info_time_factor") = info_times[3],
-                Named("info_time_aprinv") = info_times[4],
-                Named("info_time_updte") = info_times[5],
+                Named("info_time_total") = info_times_buffer[0],
+                Named("info_time_impcov") = info_times_buffer[1],
+                Named("info_time_optimz") = info_times_buffer[2],
+                Named("info_time_factor") = info_times_buffer[3],
+                Named("info_time_aprinv") = info_times_buffer[4],
+                Named("info_time_updte") = info_times_buffer[5],
                 Named("info_objective") = info_objective,
                 Named("info_duality_gap") = info_dgap,
                 Named("info_logdetX") = info_logdetx,
