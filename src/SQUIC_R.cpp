@@ -241,7 +241,7 @@ List SQUIC_R(arma::mat &data_train, double lambda, int max_iter, double drop_tol
         W_i, W_j, W_val, W_nnz,
         info_num_iter,
         &info_times.memptr(),
-        info_objective.memptr(),
+        &info_objective.memptr(),
         info_dgap,
         info_logdetx,
         info_trXS_test);
