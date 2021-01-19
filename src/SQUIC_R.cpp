@@ -34,7 +34,7 @@ extern "C"
         integer *&W_i, integer *&W_j, double *&W_val, integer &W_nnz,
         // Run statistics and information
         int &info_num_iter,
-        double *&info_times,     //length must be 6: [time_total,time_impcov,time_optimz,time_factor,time_aprinv,time_updte]
+        double *&info_times,     // length must be 6: [time_total,time_impcov,time_optimz,time_factor,time_aprinv,time_updte]
         double *&info_objective, // length must be size max_iter
         double &info_dgap,
         double &info_logdetx,
@@ -221,12 +221,12 @@ List SQUIC_R(arma::mat &data_train, double lambda, int max_iter, double drop_tol
     }
 
     // Default Result Values
-    int info_num_iter = -1;                                  // Number of Newten steps required by SQUIC
-    double info_dgap = -1e-12;                               // Duality Gap between primal and dual
-    double info_logdetx = -1e-12;                            // Can be used for likelilook (AIC or BIC) computation of test data
-    double info_trXS_test = -1e-12;                          // Can be used for likelilook (AIC or BIC) computation of test data
-    arma::Col<double> info_times(6);                         // This need to be of size 6
-    arma::Col<double> info_objective(std::max(1, max_iter)); // The objective value list, must be of size max(max_iter,1). If max_iter=0, we still keep this with size of 1
+    int info_num_iter = -1;                                            // Number of Newten steps required by SQUIC
+    double info_dgap = -1e-12;                                         // Duality Gap between primal and dual
+    double info_logdetx = -1e-12;                                      // Can be used for likelilook (AIC or BIC) computation of test data
+    double info_trXS_test = -1e-12;                                    // Can be used for likelilook (AIC or BIC) computation of test data
+    double *info_times_buffer = new double[6];                         // This need to be of size 6
+    double *info_objective_buffer = new double[std::max(1, max_iter)]; // The objective value list, must be of size max(max_iter,1). If max_iter=0, we still keep this with size of 1
 
     // Run SQUIC
     SQUIC_C(
@@ -246,7 +246,8 @@ List SQUIC_R(arma::mat &data_train, double lambda, int max_iter, double drop_tol
         info_logdetx,
         info_trXS_test);
 
-    info_objective.resize(std::max(info_num_iter, 1)); // Resize objective value list to be equal to info_num_iter
+    //Copy
+    arma::Col<double> info_objective(info_num_iter, info_num_iter);
 
     // Copy data it standard format
     // In order to access the internal arrays of the SpMat class call .sync()
@@ -274,6 +275,51 @@ List SQUIC_R(arma::mat &data_train, double lambda, int max_iter, double drop_tol
     arma::access::rw(C.n_cols) = p;
     arma::access::rw(C.n_nonzero) = W_nnz;
 
+    Rcpp::List output;
+
+    if (max_iter == 0) // Special max_iter==0: SQUIC only compute the sparse sample covariance S
+    {
+        output = Rcpp::List::create(
+            Named("S") = C,
+            Named("info_time_total") = info_times[0],
+            Named("info_time_impcov") = info_times[1]);
+    }
+    else // Regular case return all values
+    {
+
+        if (mode_data_test_provided)
+        {
+            output = Rcpp::List::create(
+                Named("X") = iC,
+                Named("W") = C,
+                Named("info_time_total") = info_times[0],
+                Named("info_time_impcov") = info_times[1],
+                Named("info_time_optimz") = info_times[2],
+                Named("info_time_factor") = info_times[3],
+                Named("info_time_aprinv") = info_times[4],
+                Named("info_time_updte") = info_times[5],
+                Named("info_objective") = info_objective,
+                Named("info_duality_gap") = info_dgap,
+                Named("info_logdetX") = info_logdetx,
+                Named("info_trXS_test") = info_trXS_test);
+        }
+        {
+            // no info_trXS_test ouput
+            output = Rcpp::List::create(
+                Named("X") = iC,
+                Named("W") = C,
+                Named("info_time_total") = info_times_buffer[0],
+                Named("info_time_impcov") = info_times_buffer[1],
+                Named("info_time_optimz") = info_times_buffer[2],
+                Named("info_time_factor") = info_times_buffer[3],
+                Named("info_time_aprinv") = info_times_buffer[4],
+                Named("info_time_updte") = info_times_buffer[5],
+                Named("info_objective") = info_objective,
+                Named("info_duality_gap") = info_dgap,
+                Named("info_logdetX") = info_logdetx);
+        }
+    }
+
     // Delete Buffers
     if (mode_M_provided)
     {
@@ -293,46 +339,8 @@ List SQUIC_R(arma::mat &data_train, double lambda, int max_iter, double drop_tol
         delete[] W_val;
     }
 
-    if (max_iter == 0) // Special max_iter==0: SQUIC only compute the sparse sample covariance S
-    {
-        return Rcpp::List::create(
-            Named("S") = C,
-            Named("info_time_total") = info_times[0],
-            Named("info_time_impcov") = info_times[1]);
-    }
-    else // Regular case return all values
-    {
+    delete[] info_times_buffer;
+    delete[] info_objective_buffer;
 
-        if (mode_data_test_provided)
-        {
-            return Rcpp::List::create(
-                Named("X") = iC,
-                Named("W") = C,
-                Named("info_time_total") = info_times[0],
-                Named("info_time_impcov") = info_times[1],
-                Named("info_time_optimz") = info_times[2],
-                Named("info_time_factor") = info_times[3],
-                Named("info_time_aprinv") = info_times[4],
-                Named("info_time_updte") = info_times[5],
-                Named("info_objective") = info_objective,
-                Named("info_duality_gap") = info_dgap,
-                Named("info_logdetX") = info_logdetx,
-                Named("info_trXS_test") = info_trXS_test);
-        }
-        {
-            // no info_trXS_test ouput
-            return Rcpp::List::create(
-                Named("X") = iC,
-                Named("W") = C,
-                Named("info_time_total") = info_times[0],
-                Named("info_time_impcov") = info_times[1],
-                Named("info_time_optimz") = info_times[2],
-                Named("info_time_factor") = info_times[3],
-                Named("info_time_aprinv") = info_times[4],
-                Named("info_time_updte") = info_times[5],
-                Named("info_objective") = info_objective,
-                Named("info_duality_gap") = info_dgap,
-                Named("info_logdetX") = info_logdetx);
-        }
-    }
+    return output;
 }
