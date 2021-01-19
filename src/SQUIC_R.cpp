@@ -14,16 +14,19 @@
 
 extern "C"
 {
-
     void SQUIC_C(
+        // Run mode
+        int mode, //mode=[0,1,2,3,4] block , mode=[5,6,7,8,9] scalar
         // Number of random variables
         integer p,
         // Training dataset
-        integer n_train, double *data_train,
+        integer n_train, double *Y_train,
         // Testing dataset
-        integer n_test, double *data_test,
+        integer n_test, double *Y_test,
         // Regulaization Term
-        double lambda, integer *M_i, integer *M_j, double *M_val, integer M_nnz,
+        double lambda,
+        // M matrix
+        integer *M_i, integer *M_j, double *M_val, integer M_nnz,
         // Optimization Paramters
         int max_iter, double drop_tol, double term_tol, int verbose,
         // Intial X0 and W0 are provided, and the end of the routing the final values of X and W are written
@@ -31,8 +34,8 @@ extern "C"
         integer *&W_i, integer *&W_j, double *&W_val, integer &W_nnz,
         // Run statistics and information
         int &info_num_iter,
-        double *info_times,     // length must be 7: [total_time,cov_time,itr_cumtime,chol_cumtime,inv_cumtime,lns_cumtime,upd_cumtime]
-        double *info_objective, // length must be size max_iter
+        double *&info_times,     //length must be 6: [time_total,time_impcov,time_optimz,time_factor,time_aprinv,time_updte]
+        double *&info_objective, // length must be size max_iter
         double &info_dgap,
         double &info_logdetx,
         double &info_trXS_test);
@@ -42,13 +45,13 @@ using namespace Rcpp;
 using namespace arma;
 
 // [[Rcpp::export]]
-List SQUIC_BASE(arma::ivec &mode, arma::mat &data_train, double lambda, int max_iter, double drop_tol, double term_tol, arma::sp_mat &M, arma::sp_mat &X0, arma::sp_mat &W0, arma::mat &data_test, int verbose)
+List SQUIC_R(arma::mat &data_train, double lambda, int max_iter, double drop_tol, double term_tol, int verbose, int mode, arma::sp_mat &M, arma::sp_mat &X0, arma::sp_mat &W0, arma::mat &data_test)
 {
 
     // Set SQUIC runtime mode
-    bool mode_M_provided = mode[0] > 0;
-    bool mode_X0W0_provided = mode[1] > 0;
-    bool mode_data_test_provided = mode[2] > 0;
+    bool mode_M_provided = M.n_nonzero > 0;
+    bool mode_X0W0_provided = (X0.n_nonzero > 0) && (W0.n_nonzero > 0);
+    bool mode_data_test_provided = data_test.n_rows == data_train.n_rows;
 
     // Get the key size parameters
     integer p = data_train.n_rows;
@@ -227,6 +230,7 @@ List SQUIC_BASE(arma::ivec &mode, arma::mat &data_train, double lambda, int max_
 
     // Run SQUIC
     SQUIC_C(
+        mode,
         p,
         n_train, data_train.memptr(),
         n_test, data_test.memptr(),
@@ -241,7 +245,7 @@ List SQUIC_BASE(arma::ivec &mode, arma::mat &data_train, double lambda, int max_
         info_logdetx,
         info_trXS_test);
 
-    info_objective.resize(std::max(info_num_iter, 1)); // Resize objective value list to be equatil to info_num_iter
+    info_objective.resize(std::max(info_num_iter, 1)); // Resize objective value list to be equal to info_num_iter
 
     // Copy data it standard format
     // In order to access the internal arrays of the SpMat class call .sync()
