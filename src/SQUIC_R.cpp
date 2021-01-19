@@ -5,13 +5,9 @@
 #include <assert.h>
 #include <algorithm>
 
-// [[Rcpp::depends(RcppArmadillo)]]
-// [[Rcpp::plugins(cpp11)]]
-
 // SQUIC is fixed with type: long in (This is a requirement for Cholmod)
 #define integer long
 // SQUIC Library iterface
-
 extern "C"
 {
     void SQUIC_C(
@@ -43,6 +39,9 @@ extern "C"
 
 using namespace Rcpp;
 using namespace arma;
+
+// [[Rcpp::depends(RcppArmadillo)]]
+// [[Rcpp::plugins(cpp11)]]
 
 // [[Rcpp::export]]
 List SQUIC_R(arma::mat &data_train, double lambda, int max_iter, double drop_tol, double term_tol, int verbose, int mode, arma::sp_mat &M, arma::sp_mat &X0, arma::sp_mat &W0, arma::mat &data_test)
