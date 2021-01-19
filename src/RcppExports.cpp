@@ -32,9 +32,7 @@ RcppExport SEXP _SQUIC_SQUIC_R(SEXP data_trainSEXP, SEXP lambdaSEXP, SEXP max_it
 //RcppExport SEXP _SQUIC_SQUIC_C(SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP);
 
 static const R_CallMethodDef CallEntries[] = {
-    {"_SQUIC_SQUIC_R", (DL_FUNC)&_SQUIC_SQUIC_R, 11}
-    //,
-    //{"_SQUIC_SQUIC_C", (DL_FUNC)&_SQUIC_SQUIC_C, 11},
+    {"_SQUIC_SQUIC_R", (DL_FUNC)&_SQUIC_SQUIC_R, 11},
     {NULL, NULL, 0}};
 
 RcppExport void R_init_SQUIC(DllInfo *dll)
