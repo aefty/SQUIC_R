@@ -29,8 +29,6 @@ RcppExport SEXP _SQUIC_SQUIC_R(SEXP data_trainSEXP, SEXP lambdaSEXP, SEXP max_it
     END_RCPP
 }
 
-//RcppExport SEXP _SQUIC_SQUIC_C(SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP);
-
 static const R_CallMethodDef CallEntries[] = {
     {"_SQUIC_SQUIC_R", (DL_FUNC)&_SQUIC_SQUIC_R, 11},
     {NULL, NULL, 0}};
