@@ -1,4 +1,4 @@
-demo.data<-function(type="trid",p_power=5,n=100,normalized=TRUE)
+DEMO.data<-function(type="trid",p_power=5,n=100,normalized=TRUE)
 {
 
 	set.seed(1);
@@ -76,7 +76,7 @@ demo.data<-function(type="trid",p_power=5,n=100,normalized=TRUE)
 	return(output);
 }
 
-demo.performance <- function(type="trid",lambda=0.4,n=100,tol=1e-4,max_iter=10) 
+DEMO.performance <- function(type="trid",lambda=0.4,n=100,tol=1e-4,max_iter=10) 
 {
 
     #Hard coded values
@@ -92,22 +92,22 @@ demo.performance <- function(type="trid",lambda=0.4,n=100,tol=1e-4,max_iter=10)
         p_power=i
 
         # Generate data
-	    out<-SQUIC::demo.data(type=type ,p_power=p_power ,n=n ,normalized=TRUE);
+	    out<-SQUIC::DEMO.data(type=type ,p_power=p_power ,n=n ,normalized=TRUE);
 	    X_star<-out$X_star;
 	    data_full<-out$data;
 
 		print(sprintf("Benchmark for p=%d started",4^p_power));
 
-		out<-SQUIC::demo.compare(alg="SQUIC" , data_full=data_full , lambda=lambda ,tol=tol , max_iter=max_iter ,  M=NULL,  X_star=NULL, erbose = 0);
+		out<-SQUIC::DEMO.compare(alg="SQUIC" , data_full=data_full , lambda=lambda ,tol=tol , max_iter=max_iter ,  M=NULL,  X_star=NULL, erbose = 0);
 		time_squic[i]<-out$time;
 
-		out<-SQUIC::demo.compare(alg="EQUAL" , data_full=data_full ,  lambda=lambda ,tol=tol , max_iter=max_iter ,  M=NULL, X_star=NULL, verbose = 0);
+		out<-SQUIC::DEMO.compare(alg="EQUAL" , data_full=data_full ,  lambda=lambda ,tol=tol , max_iter=max_iter ,  M=NULL, X_star=NULL, verbose = 0);
 		time_equal[i]<-out$time;
 
-		out<-SQUIC::demo.compare(alg="BigQuic",data_full=data_full , lambda=lambda , tol=tol , max_iter=max_iter ,  M=NULL, X_star=NULL, verbose = 0);
+		out<-SQUIC::DEMO.compare(alg="BigQuic",data_full=data_full , lambda=lambda , tol=tol , max_iter=max_iter ,  M=NULL, X_star=NULL, verbose = 0);
 		time_bigquic[i]<-out$time;
 
-		out<-SQUIC::demo.compare(alg="QUIC" ,  data_full=data_full , lambda=lambda , tol=tol , max_iter=max_iter ,  M=NULL, X_star=NULL, verbose = 0);
+		out<-SQUIC::DEMO.compare(alg="QUIC" ,  data_full=data_full , lambda=lambda , tol=tol , max_iter=max_iter ,  M=NULL, X_star=NULL, verbose = 0);
 		time_quic[i]<-out$time;			
 	}
 
@@ -121,7 +121,7 @@ demo.performance <- function(type="trid",lambda=0.4,n=100,tol=1e-4,max_iter=10)
 	return(output);
 }
 
-demo.compare <- function(alg,data_full,lambda=0.5,tol=1e-4,max_iter=10, X_star= NULL) 
+DEMO.compare <- function(alg,data_full,lambda=0.5,tol=1e-4,max_iter=10, X_star= NULL) 
 {
 	data_full_t <- Matrix::t(data_full);
 
