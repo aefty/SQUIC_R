@@ -21,7 +21,7 @@ SQUIC <- function(data_train, lambda, max_iter, drop_tol, term_tol,verbose=1, mo
 
   if(is.null(M)){
 	  # Make empty sparse matrix.
-	  M<-Matrix::sparseMatrix(dims = dim(p,p), i={}, j={})
+	  M<-Matrix::sparseMatrix(dims = c(p,p), i={}, j={})
   }else{
     if(!isSymmetric(M)){
       stop('M must be symmetric.')
@@ -30,8 +30,8 @@ SQUIC <- function(data_train, lambda, max_iter, drop_tol, term_tol,verbose=1, mo
 
   if(is.null(X0) || is.null(W0)){
 	  # Make empty sparse matrix.
-	  X0<-Matrix::sparseMatrix(dims = dim(p,p), i={}, j={})
-	  X0<-Matrix::sparseMatrix(dims = dim(p,p), i={}, j={})
+	  X0<-Matrix::sparseMatrix(dims = c(p,p), i={}, j={})
+	  X0<-Matrix::sparseMatrix(dims = c(p,p), i={}, j={})
   }else{
      if(!isSymmetric(X0) || isSymmetric(W0)){
       stop('X0 and W0 must be symmetric.')
