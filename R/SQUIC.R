@@ -47,7 +47,7 @@ SQUIC <- function(data_train, lambda, max_iter, drop_tol, term_tol,verbose=1, mo
     }
   }
 
-   out<-.Call(`_SQUIC_SQUIC_C`, data_train , lambda , max_iter , drop_tol , term_tol , verbose , mode ,M , X0 , W0 , data_test );
+   out<-.Call(`_SQUIC_SQUIC_R`, data_train , lambda , max_iter , drop_tol , term_tol , verbose , mode ,M , X0 , W0 , data_test );
    
    return(out);
 }
