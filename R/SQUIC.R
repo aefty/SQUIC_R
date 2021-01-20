@@ -40,7 +40,7 @@ SQUIC <- function(data_train, lambda, max_iter, drop_tol, term_tol,verbose=1, mo
   
   if(is.null(data_test)){
 	  # Make 1x1 matrix for data_test.
-	  data_test<-matrix(1, nrow = 1, ncol = 1)
+	  data_test<-matrix(1.0, nrow = 1, ncol = 1)
   }else{
      if(nrow(data_test) !=p ){
       stop('data_test must the same number of rows as data_train.')
