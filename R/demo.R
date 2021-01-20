@@ -98,16 +98,16 @@ DEMO.performance <- function(type="trid",lambda=0.4,n=100,tol=1e-4,max_iter=10)
 
 		print(sprintf("Benchmark for p=%d started",4^p_power));
 
-		out<-SQUIC::DEMO.compare(alg="SQUIC" , data_full=data_full , lambda=lambda ,tol=tol , max_iter=max_iter ,  M=NULL,  X_star=NULL, erbose = 0);
+		out<-SQUIC::DEMO.compare(alg="SQUIC"   , data_full=data_full , lambda=lambda , tol=tol , max_iter=max_iter , X_star=NULL);
 		time_squic[i]<-out$time;
 
-		out<-SQUIC::DEMO.compare(alg="EQUAL" , data_full=data_full ,  lambda=lambda ,tol=tol , max_iter=max_iter ,  M=NULL, X_star=NULL, verbose = 0);
+		out<-SQUIC::DEMO.compare(alg="EQUAL"   , data_full=data_full , lambda=lambda , tol=tol , max_iter=max_iter , X_star=NULL);
 		time_equal[i]<-out$time;
 
-		out<-SQUIC::DEMO.compare(alg="BigQuic",data_full=data_full , lambda=lambda , tol=tol , max_iter=max_iter ,  M=NULL, X_star=NULL, verbose = 0);
+		out<-SQUIC::DEMO.compare(alg="BigQuic" , data_full=data_full , lambda=lambda , tol=tol , max_iter=max_iter , X_star=NULL);
 		time_bigquic[i]<-out$time;
 
-		out<-SQUIC::DEMO.compare(alg="QUIC" ,  data_full=data_full , lambda=lambda , tol=tol , max_iter=max_iter ,  M=NULL, X_star=NULL, verbose = 0);
+		out<-SQUIC::DEMO.compare(alg="QUIC"    ,  data_full=data_full , lambda=lambda , tol=tol , max_iter=max_iter , X_star=NULL);
 		time_quic[i]<-out$time;			
 	}
 
