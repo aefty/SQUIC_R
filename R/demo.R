@@ -146,7 +146,7 @@ DEMO.compare <- function(alg,data_full,lambda=0.5,tol=1e-4,max_iter=10, X_star= 
 	{
 		print("#SQUIC")
 		# SQUIC
-		out	<-SQUIC::SQUIC(data_train=data_full,lambda=lambda, max_iter=max_iter, drop_tol=tol/2, term_tol=tol, verbose=verbose);
+		out	<-SQUIC::SQUIC(data_train=data_full ,lambda=lambda , max_iter=max_iter , drop_tol=tol/2 , term_tol=tol , verbose=verbose );
 		X	<-out$X;
 	}
 	else if(alg=="EQUAL")
