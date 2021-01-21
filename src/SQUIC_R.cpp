@@ -10,27 +10,24 @@
 // SQUIC Library iterface
 extern "C"
 {
-    void SQUIC_C(
-        // Run mode
-        int mode, //mode=[0,1,2,3,4] block , mode=[5,6,7,8,9] scalar
-        // Number of random variables
+
+    void SQUIC_CPP(
+        int mode,
         integer p,
-        // Training dataset
         integer n_train, double *Y_train,
-        // Testing dataset
         integer n_test, double *Y_test,
         // Regulaization Term
         double lambda,
         // M matrix
-        integer *M_i, integer *M_j, double *M_val, integer M_nnz,
+        integer *M_rinx, integer *M_cptr, double *M_val, integer M_nnz,
         // Optimization Paramters
         int max_iter, double drop_tol, double term_tol, int verbose,
         // Intial X0 and W0 are provided, and the end of the routing the final values of X and W are written
-        integer *&X_i, integer *&X_j, double *&X_val, integer &X_nnz,
-        integer *&W_i, integer *&W_j, double *&W_val, integer &W_nnz,
+        integer *&X_rinx, integer *&X_cptr, double *&X_val, integer &X_nnz,
+        integer *&W_rinx, integer *&W_cptr, double *&W_val, integer &W_nnz,
         // Run statistics and information
         int &info_num_iter,
-        double *&info_times,     // length must be 6: [time_total,time_impcov,time_optimz,time_factor,time_aprinv,time_updte]
+        double *&info_times,     //length must be 6: [time_total,time_impcov,time_optimz,time_factor,time_aprinv,time_updte]
         double *&info_objective, // length must be size max_iter
         double &info_dgap,
         double &info_logdetx,
@@ -47,10 +44,10 @@ using namespace arma;
 List SQUIC_R(arma::mat &data_train, double lambda, int max_iter, double drop_tol, double term_tol, int verbose, int mode, arma::sp_mat &M, arma::sp_mat &X0, arma::sp_mat &W0, arma::mat &data_test)
 {
 
-    // Set SQUIC runtime mode
-    bool mode_M_provided = M.n_nonzero > 0;
-    bool mode_X0W0_provided = (X0.n_nonzero > 0) && (W0.n_nonzero > 0);
-    bool mode_data_test_provided = data_test.n_rows == data_train.n_rows;
+    // Set SQUIC execution style
+    bool EXECSTYLE_M_provided = M.n_nonzero > 0;
+    bool EXECSTYLE_X0W0_provided = (X0.n_nonzero > 0) && (W0.n_nonzero > 0);
+    bool EXECSTYLE_data_test_provided = data_test.n_rows == data_train.n_rows;
 
     // Get the key size parameters
     integer p = data_train.n_rows;
@@ -66,19 +63,19 @@ List SQUIC_R(arma::mat &data_train, double lambda, int max_iter, double drop_tol
     integer *M_i;
     integer *M_j;
     double *M_val;
-    integer M_nnz = -1;
+    integer M_nnz = 0;
 
     integer *X_i;
     integer *X_j;
     double *X_val;
-    integer X_nnz = -1;
+    integer X_nnz = 0;
 
     integer *W_i;
     integer *W_j;
     double *W_val;
-    integer W_nnz = -1;
+    integer W_nnz = 0;
 
-    if (mode_data_test_provided) //Case mode[2]>0: We are going to use the test data
+    if (EXECSTYLE_data_test_provided) //We are going to use the test data
     {
         n_test = data_test.n_cols;
 
@@ -93,38 +90,44 @@ List SQUIC_R(arma::mat &data_train, double lambda, int max_iter, double drop_tol
         }
     }
 
-    if (mode_M_provided) //Case mode[0]>0: We are given the M matrix
+    if (EXECSTYLE_M_provided) //We are given the M matrix
     {
         M.sync();
+        M_nnz = M.n_nonzero;
 
-        // Matricies must be the correct dimension
-        if (p != M.n_rows && p != M.n_cols)
+        // ERROR CHECKS
         {
-            stop("Matrix M must be of size (pxp) p=%d", p);
+            // 1) Symmetry check done outside in R code.
+            // 2) Matricies must be the correct dimension
+            if (p != M.n_rows && p != M.n_cols)
+            {
+                stop("Matrix M must be of size (pxp) p=%d", p);
+            }
         }
 
-        M_nnz = M.n_nonzero;
+        //COPY M MATRIX
         auto M_row_indices = arma::access::rwp(M.row_indices);
         auto M_col_ptrs = arma::access::rwp(M.col_ptrs);
         auto M_values = arma::access::rwp(M.values);
-
-        M_i = new integer[M_nnz];
-        M_j = new integer[p + 1];
-        M_val = new double[M_nnz];
-
-        for (integer i = 0; i < M_nnz; ++i)
         {
-            M_i[i] = M_row_indices[i];
-            M_val[i] = M_values[i];
-        }
+            M_i = new integer[M_nnz];
+            M_j = new integer[p + 1];
+            M_val = new double[M_nnz];
 
-        for (integer i = 0; i < p + 1; ++i)
-        {
-            M_j[i] = M_col_ptrs[i];
+            for (integer i = 0; i < M_nnz; ++i)
+            {
+                M_i[i] = M_row_indices[i];
+                M_val[i] = M_values[i];
+            }
+
+            for (integer i = 0; i < p + 1; ++i)
+            {
+                M_j[i] = M_col_ptrs[i];
+            }
         }
     }
 
-    if (mode_X0W0_provided) //Case mode[1]>0: We are BOTH X0 and W0
+    if (EXECSTYLE_X0W0_provided) // We are using BOTH X0 and W0
     {
         X0.sync();
         W0.sync();
@@ -133,10 +136,12 @@ List SQUIC_R(arma::mat &data_train, double lambda, int max_iter, double drop_tol
 
         // ERROR CHECKS
         {
-            // Matricies must be the correct dimension
+            // 1) Symmetry check done outside in R code.
+            // 2) Matricies must be the correct dimension
             if (p != X0.n_rows && p != X0.n_cols)
             {
-                if (mode_M_provided)
+
+                if (EXECSTYLE_M_provided) // failed error check, delete previous allocated memory
                 {
                     delete[] M_i;
                     delete[] M_j;
@@ -146,7 +151,7 @@ List SQUIC_R(arma::mat &data_train, double lambda, int max_iter, double drop_tol
             }
             if (p != W0.n_rows && p != W0.n_cols)
             {
-                if (mode_M_provided)
+                if (EXECSTYLE_M_provided) // failed error check, delete previous allocated memory
                 {
                     delete[] M_i;
                     delete[] M_j;
@@ -157,7 +162,7 @@ List SQUIC_R(arma::mat &data_train, double lambda, int max_iter, double drop_tol
 
             if (X_nnz < p)
             {
-                if (mode_M_provided)
+                if (EXECSTYLE_M_provided)
                 {
                     delete[] M_i;
                     delete[] M_j;
@@ -168,7 +173,7 @@ List SQUIC_R(arma::mat &data_train, double lambda, int max_iter, double drop_tol
 
             if (W_nnz < p)
             {
-                if (mode_M_provided)
+                if (EXECSTYLE_M_provided)
                 {
                     delete[] M_i;
                     delete[] M_j;
@@ -178,44 +183,46 @@ List SQUIC_R(arma::mat &data_train, double lambda, int max_iter, double drop_tol
             }
         }
 
-        // X0 data structure
+        // COPY X0 MATRIX
         auto X_row_indices = arma::access::rwp(X0.row_indices);
         auto X_col_ptrs = arma::access::rwp(X0.col_ptrs);
         auto X_values = arma::access::rwp(X0.values);
-
-        X_i = new integer[X_nnz];
-        X_j = new integer[p + 1];
-        X_val = new double[X_nnz];
-
-        for (integer i = 0; i < X_nnz; ++i)
         {
-            X_i[i] = X_row_indices[i];
-            X_val[i] = X_values[i];
+            X_i = new integer[X_nnz];
+            X_j = new integer[p + 1];
+            X_val = new double[X_nnz];
+
+            for (integer i = 0; i < X_nnz; ++i)
+            {
+                X_i[i] = X_row_indices[i];
+                X_val[i] = X_values[i];
+            }
+
+            for (integer i = 0; i < p + 1; ++i)
+            {
+                X_j[i] = X_col_ptrs[i];
+            }
         }
 
-        for (integer i = 0; i < p + 1; ++i)
-        {
-            X_j[i] = X_col_ptrs[i];
-        }
-
-        // W0 data structure
+        // COPY W0 MATRIX
         auto W_row_indices = arma::access::rwp(W0.row_indices);
         auto W_col_ptrs = arma::access::rwp(W0.col_ptrs);
         auto W_values = arma::access::rwp(W0.values);
-
-        W_i = new integer[W_nnz];
-        W_j = new integer[p + 1];
-        W_val = new double[W_nnz];
-
-        for (integer i = 0; i < W_nnz; ++i)
         {
-            W_i[i] = W_row_indices[i];
-            W_val[i] = W_values[i];
-        }
+            W_i = new integer[W_nnz];
+            W_j = new integer[p + 1];
+            W_val = new double[W_nnz];
 
-        for (integer i = 0; i < p + 1; ++i)
-        {
-            W_j[i] = W_col_ptrs[i];
+            for (integer i = 0; i < W_nnz; ++i)
+            {
+                W_i[i] = W_row_indices[i];
+                W_val[i] = W_values[i];
+            }
+
+            for (integer i = 0; i < p + 1; ++i)
+            {
+                W_j[i] = W_col_ptrs[i];
+            }
         }
     }
 
@@ -228,7 +235,7 @@ List SQUIC_R(arma::mat &data_train, double lambda, int max_iter, double drop_tol
     double *info_objective_buffer = new double[std::max(1, max_iter)]; // The objective value list, must be of size max(max_iter,1). If max_iter=0, we still keep this with size of 1
 
     // Run SQUIC
-    SQUIC_C(
+    SQUIC_CPP(
         mode,
         p,
         n_train, data_train.memptr(),
@@ -286,7 +293,7 @@ List SQUIC_R(arma::mat &data_train, double lambda, int max_iter, double drop_tol
         //Copy info_objective_buffer keeping only info_num_iter elements
         arma::Col<double> info_objective(info_objective_buffer, info_num_iter);
 
-        if (mode_data_test_provided)
+        if (EXECSTYLE_data_test_provided)
         {
             output = Rcpp::List::create(
                 Named("X") = iC,
@@ -320,14 +327,14 @@ List SQUIC_R(arma::mat &data_train, double lambda, int max_iter, double drop_tol
     }
 
     // Delete Buffers
-    if (mode_M_provided)
+    if (EXECSTYLE_M_provided)
     {
         delete[] M_i;
         delete[] M_j;
         delete[] M_val;
     }
 
-    if (mode_X0W0_provided)
+    if (EXECSTYLE_X0W0_provided)
     {
         delete[] X_i;
         delete[] X_j;
