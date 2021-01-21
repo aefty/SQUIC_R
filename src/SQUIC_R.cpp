@@ -26,7 +26,7 @@ extern "C"
         double *&info_objective, // length must be size max_iter
         double &info_dgap,
         double &info_logdetx,
-        double &info_trXS_test)
+        double &info_trXS_test);
 }
 
 using namespace Rcpp;
