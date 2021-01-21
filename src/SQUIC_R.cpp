@@ -16,22 +16,17 @@ extern "C"
         integer p,
         integer n_train, double *Y_train,
         integer n_test, double *Y_test,
-        // Regulaization Term
         double lambda,
-        // M matrix
         integer *M_rinx, integer *M_cptr, double *M_val, integer M_nnz,
-        // Optimization Paramters
         int max_iter, double drop_tol, double term_tol, int verbose,
-        // Intial X0 and W0 are provided, and the end of the routing the final values of X and W are written
         integer *&X_rinx, integer *&X_cptr, double *&X_val, integer &X_nnz,
         integer *&W_rinx, integer *&W_cptr, double *&W_val, integer &W_nnz,
-        // Run statistics and information
         int &info_num_iter,
         double *&info_times,     //length must be 6: [time_total,time_impcov,time_optimz,time_factor,time_aprinv,time_updte]
         double *&info_objective, // length must be size max_iter
         double &info_dgap,
         double &info_logdetx,
-        double &info_trXS_test);
+        double &info_trXS_test)
 }
 
 using namespace Rcpp;
