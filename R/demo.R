@@ -109,6 +109,25 @@ DEMO.load_data<-function(type="trid",p=4^5,n=100)
 }
 
 
+
+DEMO.lambda_set_selection<- function(type="trid",p=4^5,n=100){
+
+
+	# Generate data
+	out<-SQUIC::DEMO.load_data(type=type , p=p ,n=n );
+	X_star<-out$X_star;
+	data_full<-out$data;
+
+	lambda_set=c()
+
+
+
+	output <- list(
+		"lambda_set" = lambda_set			
+	)
+
+}
+
 DEMO.performance <- function(type="trid",lambda=0.4,n=100,tol=1e-4,max_iter=10) 
 {
 

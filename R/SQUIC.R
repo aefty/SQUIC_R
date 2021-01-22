@@ -19,7 +19,6 @@ SQUIC <- function(data_train, lambda, max_iter, drop_tol, term_tol,verbose=1, mo
   
   p<-nrow(data_train);
 
-	print(sprintf("# here1"));
   if(is.null(M)){
 	  # Make empty sparse matrix of type dgCMatrix.
 	  M<-as(Matrix::sparseMatrix(dims = c(p,p), i={}, j={}),"dgCMatrix");
@@ -29,7 +28,6 @@ SQUIC <- function(data_train, lambda, max_iter, drop_tol, term_tol,verbose=1, mo
     }
   }
 
-  print(sprintf("# here2"));
   if(is.null(X0) || is.null(W0)){
 	  # Make empty sparse matrix of type dgCMatrix.
 	  X0<-as(Matrix::sparseMatrix(dims = c(p,p), i={}, j={}),"dgCMatrix");
@@ -40,7 +38,6 @@ SQUIC <- function(data_train, lambda, max_iter, drop_tol, term_tol,verbose=1, mo
     }
   }
   
-  print(sprintf("# here3"));
   if(is.null(data_test)){
 	  # Make 1x1 matrix for data_test. This input must be provided , 
     # if p_test!=p_train ... thatn the test data is ignored.
@@ -53,6 +50,39 @@ SQUIC <- function(data_train, lambda, max_iter, drop_tol, term_tol,verbose=1, mo
 
    out<-SQUIC::SQUIC_R(data_train , lambda , max_iter , drop_tol , term_tol , verbose , mode ,M , X0 , W0 , data_test );
    return(out);
+}
+
+SQUIC_S<-function(data_full, lambda_sample=.5,lambda_set_length=10){
+
+	# Get sample covarinace matrix by running SQUIC with max_iter=0;
+	squic_output<-SQUIC(data=data_full,lambda=lambda_sample, max_iter=0, drop_tol=0, term_tol=0, M=M, X0=NULL, W0=NULL, data_test=NULL,verbose=0);
+
+	# Get absolute value of the max and mean of nonzeros in S
+	S<-squic_output$S;
+	S_abs_vec = abs(S@x);
+
+	S_abs_max<-max(S_abs_vec);
+	S_abs_min<-min(S_abs_vec);
+	S_abs_mean<-mean(S_abs_vec);
+	S_abs_sd<-sd(S_abs_vec);
+	nnz_S<-length(S_abs_vec);
+
+	up  <- (lambda_sample + S_abs_max)/2;
+	low <- (lambda_sample + S_abs_min)/2;
+
+	delta     <- (low-up)/lambda_set_length;
+	lambda_set<- seq(up , low , delta);
+	
+	output <- list(
+		"nnz_S"			= nnz_S, 
+		"S_abs_max"		= S_abs_max, 
+		"S_abs_min" 	= S_abs_min, 
+		"S_abs_mean"	= S_abs_mean, 
+		"S_abs_sd" 		= S_abs_sd,
+		"lambda_set"	= lambda_set 					
+	);
+
+	return(output);
 }
 
 # Cross validation
@@ -122,8 +152,9 @@ SQUIC_CV<-function(data_full , lambda_set,K=4, drop_tol=1e-2,term_tol=1e-3 , max
 	lambda_opt<-lambda_set[l_inx];
 
 	output <- list(
-		"lambda_opt"    = lambda_opt,
-    	"CV_mean"	      = CV_mean
+		"lambda_set"   = lambda_set,
+		"lambda_opt"   = lambda_opt,
+    	"CV_mean"	   = CV_mean
 	);
 
 	return(output);
