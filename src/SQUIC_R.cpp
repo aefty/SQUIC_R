@@ -234,7 +234,7 @@ List SQUIC_R(arma::mat &Y1, double lambda, int max_iter, double drop_tol, double
         mode,
         p,
         n1, Y1.memptr(),
-        n_test, Y2.memptr(),
+        n2, Y2.memptr(),
         lambda,
         M_i, M_j, M_val, M_nnz,
         max_iter, drop_tol, term_tol, verbose,
