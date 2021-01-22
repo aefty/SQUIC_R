@@ -7,13 +7,13 @@
 using namespace Rcpp;
 
 // SQUIC_R
-List SQUIC_R(arma::mat &data_train, double lambda, int max_iter, double drop_tol, double term_tol, int verbose, int mode, arma::sp_mat &M, arma::sp_mat &X0, arma::sp_mat &W0, arma::mat &data_test);
-RcppExport SEXP _SQUIC_SQUIC_R(SEXP data_trainSEXP, SEXP lambdaSEXP, SEXP max_iterSEXP, SEXP drop_tolSEXP, SEXP term_tolSEXP, SEXP verboseSEXP, SEXP modeSEXP, SEXP MSEXP, SEXP X0SEXP, SEXP W0SEXP, SEXP data_testSEXP)
+List SQUIC_R(arma::mat &Y1, double lambda, int max_iter, double drop_tol, double term_tol, int verbose, int mode, arma::sp_mat &M, arma::sp_mat &X0, arma::sp_mat &W0, arma::mat &Y2);
+RcppExport SEXP _SQUIC_SQUIC_R(SEXP Y1SEXP, SEXP lambdaSEXP, SEXP max_iterSEXP, SEXP drop_tolSEXP, SEXP term_tolSEXP, SEXP verboseSEXP, SEXP modeSEXP, SEXP MSEXP, SEXP X0SEXP, SEXP W0SEXP, SEXP Y2SEXP)
 {
     BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter<arma::mat &>::type data_train(data_trainSEXP);
+    Rcpp::traits::input_parameter<arma::mat &>::type Y1(Y1SEXP);
     Rcpp::traits::input_parameter<double>::type lambda(lambdaSEXP);
     Rcpp::traits::input_parameter<int>::type max_iter(max_iterSEXP);
     Rcpp::traits::input_parameter<double>::type drop_tol(drop_tolSEXP);
@@ -23,8 +23,8 @@ RcppExport SEXP _SQUIC_SQUIC_R(SEXP data_trainSEXP, SEXP lambdaSEXP, SEXP max_it
     Rcpp::traits::input_parameter<arma::sp_mat &>::type M(MSEXP);
     Rcpp::traits::input_parameter<arma::sp_mat &>::type X0(X0SEXP);
     Rcpp::traits::input_parameter<arma::sp_mat &>::type W0(W0SEXP);
-    Rcpp::traits::input_parameter<arma::mat &>::type data_test(data_testSEXP);
-    rcpp_result_gen = Rcpp::wrap(SQUIC_R(data_train, lambda, max_iter, drop_tol, term_tol, verbose, mode, M, X0, W0, data_test));
+    Rcpp::traits::input_parameter<arma::mat &>::type Y2(Y2SEXP);
+    rcpp_result_gen = Rcpp::wrap(SQUIC_R(Y1, lambda, max_iter, drop_tol, term_tol, verbose, mode, M, X0, W0, Y2));
     return rcpp_result_gen;
     END_RCPP
 }
