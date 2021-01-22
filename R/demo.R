@@ -108,6 +108,29 @@ DEMO.load_data<-function(type="trid",p=4^5,n=100)
 	return(output);
 }
 
+DEMO.lambda_search<- function(type="trid", p=4^5 , n=100 ,  criterion="LL"){
+
+
+  	# Generate data
+	out<-SQUIC::DEMO.load_data(type=type , p=p ,n=n );
+	X_star<-out$X_star;
+	data_full<-out$data;
+
+
+	# Generate a lambda_set
+	out<-SQUIC::SQUIC_S(data_train=data_full, lambda_sample=.5,lambda_set_length=10);
+	print(out);
+	lambda_set<-out$lambda_set;
+
+	# Do CV on for best lambda
+	out<-SQUIC_CV<-function( data_train=data_full , lambda_set=lambda_set , criterion=criterion );
+	
+
+	return(out);
+
+
+}
+
 DEMO.performance <- function(type="trid",lambda=0.4,n=100,tol=1e-4,max_iter=10) 
 {
 

@@ -86,7 +86,7 @@ SQUIC_S<-function(data_full, lambda_sample=.5,lambda_set_length=10){
 }
 
 # Cross validation
-SQUIC_CV<-function(data_full , lambda_set,K=4, drop_tol=1e-2,term_tol=1e-3 , max_iter=3 , criterion="LL" , M=NULL , X0=NULL , W0=NULL)
+SQUIC_CV<-function(data_full , lambda_set,K=4, drop_tol=0.5e-2,term_tol=1e-2 , max_iter=3 , criterion="LL" , M=NULL , X0=NULL , W0=NULL)
 {
 
 	p=nrow(data_full);
@@ -116,7 +116,7 @@ SQUIC_CV<-function(data_full , lambda_set,K=4, drop_tol=1e-2,term_tol=1e-3 , max
 			lambda=lambda_set[l];
 	
 			# run a rough (low tolerences and iterations)
-			squic_output<-SQUIC::SQUIC(data_train=data_train, lambda=lambda, max_iter=max_iter, drop_tol=drop_tol , term_tol=term_tol , verbose=0 , M=M , X0=X0, W0=W0 , data_test=data_test );
+			squic_output<-SQUIC::SQUIC(data_train=data_train, lambda=lambda, max_iter=max_iter, drop_tol=drop_tol , term_tol=term_tol , verbose=0 , M=M , X0=X0 , W0=W0 , data_test=data_test );
 
 			#Extract the results form SQUIC
 			X<-squic_output$X;
