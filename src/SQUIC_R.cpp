@@ -280,7 +280,7 @@ List SQUIC_R(arma::mat &data_train, double lambda, int max_iter, double drop_tol
         output = Rcpp::List::create(
             Named("S") = C,
             Named("info_time_total") = info_times_buffer[0],
-            Named("info_time_impcov") = info_times_buffer[1]);
+            Named("info_time_sample_cov") = info_times_buffer[1]);
     }
     else // Regular case return all values
     {
@@ -294,11 +294,11 @@ List SQUIC_R(arma::mat &data_train, double lambda, int max_iter, double drop_tol
                 Named("X") = iC,
                 Named("W") = C,
                 Named("info_time_total") = info_times_buffer[0],
-                Named("info_time_impcov") = info_times_buffer[1],
-                Named("info_time_optimz") = info_times_buffer[2],
+                Named("info_time_sample_cov") = info_times_buffer[1],
+                Named("info_time_optimize") = info_times_buffer[2],
                 Named("info_time_factor") = info_times_buffer[3],
-                Named("info_time_aprinv") = info_times_buffer[4],
-                Named("info_time_updte") = info_times_buffer[5],
+                Named("info_time_approximate_inv") = info_times_buffer[4],
+                Named("info_time_coordinate_upd") = info_times_buffer[5],
                 Named("info_objective") = info_objective,
                 Named("info_duality_gap") = info_dgap,
                 Named("info_logdetX") = info_logdetx,
@@ -310,11 +310,11 @@ List SQUIC_R(arma::mat &data_train, double lambda, int max_iter, double drop_tol
                 Named("X") = iC,
                 Named("W") = C,
                 Named("info_time_total") = info_times_buffer[0],
-                Named("info_time_impcov") = info_times_buffer[1],
-                Named("info_time_optimz") = info_times_buffer[2],
+                Named("info_time_sample_cov") = info_times_buffer[1],
+                Named("info_time_optimize") = info_times_buffer[2],
                 Named("info_time_factor") = info_times_buffer[3],
-                Named("info_time_aprinv") = info_times_buffer[4],
-                Named("info_time_updte") = info_times_buffer[5],
+                Named("info_time_approximate_inv") = info_times_buffer[4],
+                Named("info_time_coordinate_upd") = info_times_buffer[5],
                 Named("info_objective") = info_objective,
                 Named("info_duality_gap") = info_dgap,
                 Named("info_logdetX") = info_logdetx);

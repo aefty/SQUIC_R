@@ -1,17 +1,15 @@
-DEMO.data<-function(type="trid",p_power=5,n=100,normalized=TRUE)
+DEMO.make_data<-function(type="trid",p=4^5,n=100,normalized=TRUE)
 {
 
 	set.seed(1);
 
     start_time <- Sys.time()
-    p=4^p_power;
 	
     print(sprintf("# Generating Percision Matrix: type=%s p=%d n=%d",type,p,n));
 
 	if(type=="eye") # Idendity Matrix for iC_star
 	{
 			iC_star <- Matrix::Diagonal(p);
-			C_star <- solve(iC_star);
 	}
 	else if(type=="trid") # Tridiagiaonl matrix for iC_star 
 	{
@@ -22,7 +20,6 @@ DEMO.data<-function(type="trid",p_power=5,n=100,normalized=TRUE)
 						rep(-6/9, p-1)));
 			iC_star[1,1]=4/3;
 			iC_star[p,p]=4/3;
-			C_star <- solve(iC_star);	
 	}
 		else if(type=="rand")  # Random matrix for iC_star (averag of 5 nnz per row) 
 	{
@@ -34,28 +31,14 @@ DEMO.data<-function(type="trid",p_power=5,n=100,normalized=TRUE)
 			D=Matrix::Diagonal(p,x);
 			iC_star<- iC_star+D;
 
-			# invert it for covariance
-			C_star <- solve(iC_star);
-
-			# Extract the diagional to make unit variance for C_star
-			# also use the transformation for iC_star
-			x=sqrt(diag(C_star));
-			ix=1/x;
-			
-			D=Matrix::Diagonal(p,ix);
-			C_star<-D%*%C_star%*%D
-
-			D=Matrix::Diagonal(p,x);
-			iC_star<-D%*%iC_star%*%D
-
 	}else{
 			stop("Unknown matrix type.")
 	}
 
 	# Generate data
-	mu_star <- replicate(p, 0);
- 	data <- MASS::mvrnorm(n, mu_star, C_star, tol = 1e-2, empirical = FALSE, EISPACK = FALSE);
-	data <- Matrix::t(data);
+	z    <- replicate(n,rnorm(p));
+	iC_L <- chol(iC_star);
+	data <- matrix(solve(iC_L,z),p,n);
 
 	if(normalized==TRUE){
 		for (i in 1:p) {
@@ -70,17 +53,60 @@ DEMO.data<-function(type="trid",p_power=5,n=100,normalized=TRUE)
 	output <- list(
 		"data" = data, 
 		"X_star" = iC_star,
+	);
+
+	return(output);
+}
+
+SQUIC_DEMO.load_data<-function(type="trid",p_power=5,n=100,normalized=FALSE)
+{
+
+	set.seed(1);
+
+    start_time <- Sys.time()
+    matrix_folder=system.file("extdata",package = "SQUIC")
+
+    p=4^p_power;
+	
+    print(sprintf("# Reading Matrix From file: type=%s p=%d n=%d normalized=%d",type,p,n,normalized));
+
+	iC_file_name=paste(matrix_folder,"/",type,p,"iC",".rmat",sep = "");
+	C_file_name=paste(matrix_folder,"/",type,p,"C",".rmat",sep = "");
+
+	iC_star=Matrix::readMM(iC_file_name)
+	C_star=Matrix::readMM(C_file_name)
+	
+	# Generate data
+    print(sprintf("# Generating data ...",type,p,n,normalized));
+	mu_star <- replicate(p, 0);
+ 	data <- MASS::mvrnorm(n, mu_star, C_star, tol = 1e-2, empirical = FALSE, EISPACK = FALSE);
+	data <- Matrix::t(data);
+
+	if(normalized==TRUE){
+		for (i in 1:p) {
+			sd_data<-sd(data[i,]);
+			data[i,]<-data[i,]/sd_data;
+		}
+	}
+	finish_time <- Sys.time()
+	print(sprintf("# Generating data finished: time=%f",finish_time-start_time));
+
+	output <- list(
+		"data" = data, 
+		"X_star" = iC_star,
 		"W_star" = C_star
 	);
 
 	return(output);
 }
 
+
+
 DEMO.performance <- function(type="trid",lambda=0.4,n=100,tol=1e-4,max_iter=10) 
 {
 
     #Hard coded values
-    p_power_max<-6;
+    p_power_max<-5;
 
 	time_squic		<-replicate(p_power_max, 0);
 	time_equal		<-replicate(p_power_max, 0);	
@@ -89,14 +115,14 @@ DEMO.performance <- function(type="trid",lambda=0.4,n=100,tol=1e-4,max_iter=10)
 
 	for (i in 1:p_power_max) {
 
-        p_power=i
+        p=4^i;
 
         # Generate data
-	    out<-SQUIC::DEMO.data(type=type ,p_power=p_power ,n=n ,normalized=TRUE);
+	    out<-SQUIC::DEMO.make_data(type=type ,p=p ,n=n ,normalized=TRUE);
 	    X_star<-out$X_star;
 	    data_full<-out$data;
 
-		print(sprintf("Benchmark for p=%d started",4^p_power));
+		print(sprintf("Benchmark for p=%d started",p));
 
 		out<-SQUIC::DEMO.compare(alg="SQUIC"   , data_full=data_full , lambda=lambda , tol=tol , max_iter=max_iter , X_star=NULL);
 		time_squic[i]<-out$time;

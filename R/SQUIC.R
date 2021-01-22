@@ -123,7 +123,7 @@ SQUIC_CV<-function(data_full , lambda_set,K=4, drop_tol=1e-2,term_tol=1e-3 , max
 
 	output <- list(
 		"lambda_opt"    = lambda_opt,
-    "CV_mean"	      = CV_mean
+    	"CV_mean"	      = CV_mean
 	);
 
 	return(output);
