@@ -68,8 +68,7 @@ DEMO.load_data<-function(type="trid",p=4^5,n=100)
 
     print(sprintf("# Reading Matrix From file: type=%s p=%d n=%d",type,p,n));
 
-	filename=paste(matrix_folder,"/",type,p,"iC",".RData",sep = "");
-
+	filename=paste(matrix_folder , "/" , "dataset_" , type , "_" , p , "_" , n , ".RData", sep = "");
 	out<-load(filename);
 
 	output <- list(
