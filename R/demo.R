@@ -113,7 +113,7 @@ DEMO.performance <- function(type="trid",lambda=0.4,n=100,tol=1e-4,max_iter=10)
 {
 
     #Hard coded values
-    p_power_max<-5;
+    p_power_max<-6;
 
 	time_squic		<-replicate(p_power_max, 0);
 	time_equal		<-replicate(p_power_max, 0);	
@@ -125,7 +125,7 @@ DEMO.performance <- function(type="trid",lambda=0.4,n=100,tol=1e-4,max_iter=10)
         p=4^i;
 
         # Generate data
-	    out<-SQUIC::DEMO.make_data(type=type ,p=p ,n=n ,normalized=TRUE);
+	    out<-SQUIC::DEMO.load_data(type=type , p=p ,n=n );
 	    X_star<-out$X_star;
 	    data_full<-out$data;
 
