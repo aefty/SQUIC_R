@@ -10,7 +10,5 @@ License: What license is it under?
 Imports: 
     Rcpp (>= 1.0.1),
     Matrix,
-    MASS,
-    BigQuic,
     MLmetrics
 LinkingTo: Rcpp, RcppArmadillo

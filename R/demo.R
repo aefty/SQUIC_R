@@ -1,4 +1,4 @@
-DEMO.make_data<-function(type="trid",p=4^5,n=100,normalized=TRUE)
+DEMO.make_data<-function(type="trid",p=4^5,n=100)
 {
 
 	set.seed(1);
@@ -39,13 +39,6 @@ DEMO.make_data<-function(type="trid",p=4^5,n=100,normalized=TRUE)
 	z    <- replicate(n,rnorm(p));
 	iC_L <- chol(iC_star);
 	data <- matrix(solve(iC_L,z),p,n);
-
-	if(normalized==TRUE){
-		for (i in 1:p) {
-			sd_data<-sd(data[i,]);
-			data[i,]<-data[i,]/sd_data;
-		}
-	}
 
 	finish_time <- Sys.time()
 	print(sprintf("# Generating Data: time=%f",finish_time-start_time));
@@ -144,17 +137,13 @@ DEMO.performance <- function(type="trid",lambda=0.4,n=100,tol=1e-4,max_iter=10)
 		out<-SQUIC::DEMO.compare(alg="EQUAL"   , data_full=data_full , lambda=lambda , tol=tol , max_iter=max_iter , X_star=NULL);
 		time_equal[i]<-out$time;
 
-		out<-SQUIC::DEMO.compare(alg="BigQuic" , data_full=data_full , lambda=lambda , tol=tol , max_iter=max_iter , X_star=NULL);
-		time_bigquic[i]<-out$time;
-
 		out<-SQUIC::DEMO.compare(alg="QUIC"    ,  data_full=data_full , lambda=lambda , tol=tol , max_iter=max_iter , X_star=NULL);
 		time_quic[i]<-out$time;			
 	}
 
 	output <- list(
 		"time_squic"   			= time_squic, 
-		"time_equal" 			= time_equal, 
-		"time_bigquic" 			= time_bigquic, 		
+		"time_equal" 			= time_equal, 		
 		"time_quic" 			= time_quic 			
 		)
 
@@ -175,13 +164,6 @@ DEMO.compare <- function(alg,data_full,lambda=0.5,tol=1e-4,max_iter=10, X_star= 
 		out	<-QUIC::QUIC(S=cov(data_full_t), rho=lambda, path = NULL, tol = tol, msg = verbose, maxIter = max_iter, X.init =NULL, W.init = NULL)
 		X	<-out$X;
 	}
-	else if(alg=="BigQuic")
-	{
-		print("#BigQuic")
-		# BigQuic
-		out	<-BigQuic::BigQuic(X = data_full_t, inputFileName = NULL, outputFileName = NULL, lambda = lambda, numthreads = 8, maxit = max_iter, epsilon = tol, k = 0, memory_size = 8000, verbose = verbose, isnormalized = 1, seed = NULL, use_ram = TRUE);
-		X	<-out$precision_matrices[[1]];
-	}
 	else if(alg=="SQUIC")
 	{
 		print("#SQUIC")
@@ -198,7 +180,7 @@ DEMO.compare <- function(alg,data_full,lambda=0.5,tol=1e-4,max_iter=10, X_star= 
 	}
 	else
 	{
-		stop("Algorithem not found");
+		stop("Alg not found");
 	};
 	
 	time_end	<- Sys.time()
