@@ -63,9 +63,10 @@ DEMO.make_data_and_save<-function(){
 
 	type="rand";
 	n=100;
-	print(sprintf("# Making dataset file: type=%s p=%d n=%d",type,p,n));
+
 	for (i in 1:6) {
 		p=4^i;
+		print(sprintf("# Making dataset file: type=%s p=%d n=%d",type,p,n));
 		data<-SQUIC::DEMO.make_data(p=p,type=type,n=n);
 		file_name=paste("dataset_",type,"_",p,"_",n,".RData",sep = "");
 		save(data,file=file_name, version = 2);
@@ -74,9 +75,10 @@ DEMO.make_data_and_save<-function(){
 
 	type="eye";
 	n=100;
-	print(sprintf("# Making dataset file: type=%s p=%d n=%d",type,p,n));
+
 	for (i in 1:6) {
 		p=4^i;
+		print(sprintf("# Making dataset file: type=%s p=%d n=%d",type,p,n));
 		data<-SQUIC::DEMO.make_data(p=p,type=type,n=n);
 		file_name=paste("dataset_",type,"_",p,"_",n,".RData",sep = "");
 		save(data,file=file_name, version = 2);
@@ -85,9 +87,9 @@ DEMO.make_data_and_save<-function(){
 
 	type="trid";
 	n=100;
-	print(sprintf("# Making dataset file: type=%s p=%d n=%d",type,p,n));
 	for (i in 1:6) {
 		p=4^i;
+		print(sprintf("# Making dataset file: type=%s p=%d n=%d",type,p,n));
 		data<-SQUIC::DEMO.make_data(p=p,type=type,n=n);
 		file_name=paste("dataset_",type,"_",p,"_",n,".RData",sep = "");
 		save(data,file=file_name, version = 2);
