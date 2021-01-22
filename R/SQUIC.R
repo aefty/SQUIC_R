@@ -52,10 +52,10 @@ SQUIC <- function(data_train, lambda, max_iter, drop_tol, term_tol,verbose=1, mo
    return(out);
 }
 
-SQUIC_S<-function(data_full, lambda_sample=.5,lambda_set_length=10){
+SQUIC_S<-function(data_train, lambda_sample=.5,lambda_set_length=10){
 
 	# Get sample covarinace matrix by running SQUIC with max_iter=0;
-	squic_output<-SQUIC::SQUIC(data_train=data_full,lambda=lambda_sample, max_iter=0, drop_tol=0, term_tol=0);
+	squic_output<-SQUIC::SQUIC(data_train=data_train,lambda=lambda_sample, max_iter=0, drop_tol=0, term_tol=0);
 
 	# Get absolute value of the max and mean of nonzeros in S
 	S<-squic_output$S;
