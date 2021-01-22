@@ -14,16 +14,16 @@ extern "C"
     void SQUIC_CPP(
         int mode,
         integer p,
-        integer n_train, double *Y_train,
-        integer n_test, double *Y_test,
+        integer n1, double *Y1,
+        integer n2, double *Y2,
         double lambda,
         integer *M_rinx, integer *M_cptr, double *M_val, integer M_nnz,
         int max_iter, double drop_tol, double term_tol, int verbose,
         integer *&X_rinx, integer *&X_cptr, double *&X_val, integer &X_nnz,
         integer *&W_rinx, integer *&W_cptr, double *&W_val, integer &W_nnz,
         int &info_num_iter,
-        double *&info_times,     //length must be 6: [time_total,time_impcov,time_optimz,time_factor,time_aprinv,time_updte]
-        double *&info_objective, // length must be size max_iter
+        double *&info_times,
+        double *&info_objective,
         double &info_dgap,
         double &info_logdetx,
         double &info_trXS_test);
@@ -36,18 +36,18 @@ using namespace arma;
 // [[Rcpp::plugins(cpp11)]]
 
 // [[Rcpp::export]]
-List SQUIC_R(arma::mat &data_train, double lambda, int max_iter, double drop_tol, double term_tol, int verbose, int mode, arma::sp_mat &M, arma::sp_mat &X0, arma::sp_mat &W0, arma::mat &data_test)
+List SQUIC_R(arma::mat &Y1, double lambda, int max_iter, double drop_tol, double term_tol, int verbose, int mode, arma::sp_mat &M, arma::sp_mat &X0, arma::sp_mat &W0, arma::mat &Y2)
 {
 
     // Set SQUIC execution style
     bool EXECSTYLE_M_provided = M.n_nonzero > 0;
     bool EXECSTYLE_X0W0_provided = (X0.n_nonzero > 0) && (W0.n_nonzero > 0);
-    bool EXECSTYLE_data_test_provided = data_test.n_rows == data_train.n_rows;
+    bool EXECSTYLE_Y2_provided = Y2.n_rows == Y1.n_rows;
 
     // Get the key size parameters
-    integer p = data_train.n_rows;
-    integer n_train = data_train.n_cols;
-    integer n_test = -1;
+    integer p = Y1.n_rows;
+    integer n1 = Y1.n_cols;
+    integer n2 = -1;
 
     if (p < 2) // Only work iwth matrices
     {
@@ -70,16 +70,16 @@ List SQUIC_R(arma::mat &data_train, double lambda, int max_iter, double drop_tol
     double *W_val;
     integer W_nnz = 0;
 
-    if (EXECSTYLE_data_test_provided) //We are going to use the test data
+    if (EXECSTYLE_Y2_provided) //We are going to use the test data
     {
-        n_test = data_test.n_cols;
+        n2 = Y2.n_cols;
 
-        if (data_test.n_rows != data_train.n_rows) // Matricies must be the correct dimension
+        if (Y2.n_rows != Y1.n_rows) // Matrices must be the correct dimension
         {
             stop(" The number of random variables 'p' must equal for both training and testing datasets.");
         }
 
-        if (n_test < 1) // Matricies must be the correct dimension
+        if (n2 < 1) // Matrices must be the correct dimension
         {
             stop(" The testing datasets is empty.");
         }
@@ -93,7 +93,7 @@ List SQUIC_R(arma::mat &data_train, double lambda, int max_iter, double drop_tol
         // ERROR CHECKS
         {
             // 1) Symmetry check done outside in R code.
-            // 2) Matricies must be the correct dimension
+            // 2) Matrices must be the correct dimension
             if (p != M.n_rows && p != M.n_cols)
             {
                 stop("Matrix M must be of size (pxp) p=%d", p);
@@ -132,7 +132,7 @@ List SQUIC_R(arma::mat &data_train, double lambda, int max_iter, double drop_tol
         // ERROR CHECKS
         {
             // 1) Symmetry check done outside in R code.
-            // 2) Matricies must be the correct dimension
+            // 2) Matrices must be the correct dimension
             if (p != X0.n_rows && p != X0.n_cols)
             {
 
@@ -224,8 +224,8 @@ List SQUIC_R(arma::mat &data_train, double lambda, int max_iter, double drop_tol
     // Default Result Values
     int info_num_iter = -1;                                            // Number of Newten steps required by SQUIC
     double info_dgap = -1e-12;                                         // Duality Gap between primal and dual
-    double info_logdetx = -1e-12;                                      // Can be used for likelilook (AIC or BIC) computation of test data
-    double info_trXS_test = -1e-12;                                    // Can be used for likelilook (AIC or BIC) computation of test data
+    double info_logdetx = -1e-12;                                      // Can be used for likelihood (AIC or BIC) computation of test data
+    double info_trXS_test = -1e-12;                                    // Can be used for likelihood (AIC or BIC) computation of test data
     double *info_times_buffer = new double[6];                         // This need to be of size 6
     double *info_objective_buffer = new double[std::max(1, max_iter)]; // The objective value list, must be of size max(max_iter,1). If max_iter=0, we still keep this with size of 1
 
@@ -233,8 +233,8 @@ List SQUIC_R(arma::mat &data_train, double lambda, int max_iter, double drop_tol
     SQUIC_CPP(
         mode,
         p,
-        n_train, data_train.memptr(),
-        n_test, data_test.memptr(),
+        n1, Y1.memptr(),
+        n_test, Y2.memptr(),
         lambda,
         M_i, M_j, M_val, M_nnz,
         max_iter, drop_tol, term_tol, verbose,
@@ -288,7 +288,7 @@ List SQUIC_R(arma::mat &data_train, double lambda, int max_iter, double drop_tol
         //Copy info_objective_buffer keeping only info_num_iter elements
         arma::Col<double> info_objective(info_objective_buffer, info_num_iter);
 
-        if (EXECSTYLE_data_test_provided)
+        if (EXECSTYLE_Y2_provided)
         {
             output = Rcpp::List::create(
                 Named("X") = iC,
