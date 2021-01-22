@@ -108,26 +108,6 @@ DEMO.load_data<-function(type="trid",p=4^5,n=100)
 	return(output);
 }
 
-
-
-DEMO.lambda_set_selection<- function(type="trid",p=4^5,n=100){
-
-
-	# Generate data
-	out<-SQUIC::DEMO.load_data(type=type , p=p ,n=n );
-	X_star<-out$X_star;
-	data_full<-out$data;
-
-	lambda_set=c()
-
-
-
-	output <- list(
-		"lambda_set" = lambda_set			
-	)
-
-}
-
 DEMO.performance <- function(type="trid",lambda=0.4,n=100,tol=1e-4,max_iter=10) 
 {
 
@@ -136,7 +116,6 @@ DEMO.performance <- function(type="trid",lambda=0.4,n=100,tol=1e-4,max_iter=10)
 
 	time_squic		<-replicate(p_power_max, 0);
 	time_equal		<-replicate(p_power_max, 0);	
-	time_bigquic	<-replicate(p_power_max, 0);
 	time_quic		<-replicate(p_power_max, 0);
 
 	for (i in 1:p_power_max) {
@@ -173,7 +152,7 @@ DEMO.compare <- function(alg,data_full,lambda=0.5,tol=1e-4,max_iter=10, X_star= 
 {
 	data_full_t <- Matrix::t(data_full);
 
-	 verbose = 1;
+	verbose = 1;
 
 	time_start <- Sys.time()
 	if(alg=="QUIC")
@@ -217,13 +196,14 @@ DEMO.compare <- function(alg,data_full,lambda=0.5,tol=1e-4,max_iter=10, X_star= 
 			"f1" = MLmetrics::F1_Score(X_star_label,X_label, positive = "1"),
 			"acc" = MLmetrics::Accuracy(X_star_label,X_label)				
 		);
+
 	}else{
+
 		# Convert matrix to labels
 		output <- list(
 			"X" = X, 
 			"time" = time_end-time_start	
 		);
-
 	}
 
 	return(output);
