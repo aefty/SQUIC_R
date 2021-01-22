@@ -123,7 +123,7 @@ DEMO.lambda_search<- function(type="trid", p=4^5 , n=100 ,  criterion="LL"){
 	lambda_set<-out$lambda_set;
 
 	# Do CV on for best lambda
-	out<-SQUIC_CV<-function( data_train=data_full , lambda_set=lambda_set , criterion=criterion );
+	out<-SQUIC::SQUIC_CV(data_train=data_full , lambda_set=lambda_set , criterion=criterion );
 	
 
 	return(out);
