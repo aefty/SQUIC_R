@@ -9,30 +9,30 @@ DEMO.make_data<-function(type="trid",p=4^5,n=100,normalized=TRUE)
 
 	if(type=="eye") # Idendity Matrix for iC_star
 	{
-			iC_star <- Matrix::Diagonal(p);
+		iC_star <- Matrix::Diagonal(p);
 	}
 	else if(type=="trid") # Tridiagiaonl matrix for iC_star 
 	{
-			iC_star <- Matrix::bandSparse(p, p,
-					(-1):1,
-					list(rep(-6/9, p-1), 
-						rep(10/6, p), 
-						rep(-6/9, p-1)));
-			iC_star[1,1]=4/3;
-			iC_star[p,p]=4/3;
+		iC_star <- Matrix::bandSparse(p, p,
+				(-1):1,
+				list(rep(-6/9, p-1), 
+					rep(10/6, p), 
+					rep(-6/9, p-1)));
+		iC_star[1,1]=4/3;
+		iC_star[p,p]=4/3;
 	}
 		else if(type=="rand")  # Random matrix for iC_star (averag of 5 nnz per row) 
 	{
-			nnz_per_row=5;
+		nnz_per_row=5;
 
-			# Make PSD symmetric Random Matrix
-			iC_star <-Matrix::rsparsematrix(p,p,NULL,nnz_per_row*p/2,symmetric=TRUE);
-			x=Matrix::colSums(abs(iC_star))+1;
-			D=Matrix::Diagonal(p,x);
-			iC_star<- iC_star+D;
+		# Make PSD symmetric Random Matrix
+		iC_star <-Matrix::rsparsematrix(p,p,NULL,nnz_per_row*p/2,symmetric=TRUE);
+		x=Matrix::colSums(abs(iC_star))+1;
+		D=Matrix::Diagonal(p,x);
+		iC_star<- iC_star+D;
 
 	}else{
-			stop("Unknown matrix type.")
+		stop("Unknown matrix type.")
 	}
 
 	# Generate data
@@ -52,7 +52,7 @@ DEMO.make_data<-function(type="trid",p=4^5,n=100,normalized=TRUE)
 
 	output <- list(
 		"data" = data, 
-		"X_star" = iC_star,
+		"X_star" = iC_star
 	);
 
 	return(output);
