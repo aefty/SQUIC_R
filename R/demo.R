@@ -59,6 +59,28 @@ DEMO.make_data<-function(type="trid",p=4^5,n=100,normalized=TRUE)
 }
 
 
+DEMO.load_data<-function(type="trid",p=4^5,n=100)
+{
+
+    start_time <- Sys.time()
+    matrix_folder=system.file("extdata",package = "SQUIC")
+
+
+    print(sprintf("# Reading Matrix From file: type=%s p=%d n=%d",type,p,n));
+
+	filename=paste(matrix_folder,"/",type,p,"iC",".RData",sep = "");
+
+	out<-load(filename);
+
+	output <- list(
+		"data" = out$data, 
+		"X_star" = out$X_star
+	);
+
+	return(output);
+}
+
+
 DEMO.performance <- function(type="trid",lambda=0.4,n=100,tol=1e-4,max_iter=10) 
 {
 
