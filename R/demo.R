@@ -58,49 +58,6 @@ DEMO.make_data<-function(type="trid",p=4^5,n=100,normalized=TRUE)
 	return(output);
 }
 
-SQUIC_DEMO.load_data<-function(type="trid",p_power=5,n=100,normalized=FALSE)
-{
-
-	set.seed(1);
-
-    start_time <- Sys.time()
-    matrix_folder=system.file("extdata",package = "SQUIC")
-
-    p=4^p_power;
-	
-    print(sprintf("# Reading Matrix From file: type=%s p=%d n=%d normalized=%d",type,p,n,normalized));
-
-	iC_file_name=paste(matrix_folder,"/",type,p,"iC",".rmat",sep = "");
-	C_file_name=paste(matrix_folder,"/",type,p,"C",".rmat",sep = "");
-
-	iC_star=Matrix::readMM(iC_file_name)
-	C_star=Matrix::readMM(C_file_name)
-	
-	# Generate data
-    print(sprintf("# Generating data ...",type,p,n,normalized));
-	mu_star <- replicate(p, 0);
- 	data <- MASS::mvrnorm(n, mu_star, C_star, tol = 1e-2, empirical = FALSE, EISPACK = FALSE);
-	data <- Matrix::t(data);
-
-	if(normalized==TRUE){
-		for (i in 1:p) {
-			sd_data<-sd(data[i,]);
-			data[i,]<-data[i,]/sd_data;
-		}
-	}
-	finish_time <- Sys.time()
-	print(sprintf("# Generating data finished: time=%f",finish_time-start_time));
-
-	output <- list(
-		"data" = data, 
-		"X_star" = iC_star,
-		"W_star" = C_star
-	);
-
-	return(output);
-}
-
-
 
 DEMO.performance <- function(type="trid",lambda=0.4,n=100,tol=1e-4,max_iter=10) 
 {
