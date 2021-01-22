@@ -59,6 +59,43 @@ DEMO.make_data<-function(type="trid",p=4^5,n=100,normalized=TRUE)
 }
 
 
+DEMO.make_data_and_save<-function(){
+
+	type="rand";
+	n=100;
+	print(sprintf("# Making dataset file: type=%s p=%d n=%d",type,p,n));
+	for (i in 1:6) {
+		p=4^i;
+		data<-SQUIC::DEMO.make_data(p=p,type=type,n=n);
+		file_name=paste("dataset_",type,"_",p,"_",n,".RData",sep = "");
+		save(data,file=file_name, version = 2);
+	}
+
+
+	type="eye";
+	n=100;
+	print(sprintf("# Making dataset file: type=%s p=%d n=%d",type,p,n));
+	for (i in 1:6) {
+		p=4^i;
+		data<-SQUIC::DEMO.make_data(p=p,type=type,n=n);
+		file_name=paste("dataset_",type,"_",p,"_",n,".RData",sep = "");
+		save(data,file=file_name, version = 2);
+	}
+
+
+	type="trid";
+	n=100;
+	print(sprintf("# Making dataset file: type=%s p=%d n=%d",type,p,n));
+	for (i in 1:6) {
+		p=4^i;
+		data<-SQUIC::DEMO.make_data(p=p,type=type,n=n);
+		file_name=paste("dataset_",type,"_",p,"_",n,".RData",sep = "");
+		save(data,file=file_name, version = 2);
+	}
+
+}
+
+
 DEMO.load_data<-function(type="trid",p=4^5,n=100)
 {
     matrix_folder=system.file("extdata",package = "SQUIC")
