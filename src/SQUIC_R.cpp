@@ -44,12 +44,14 @@ List SQUIC_R(arma::mat &Y1, double lambda, int max_iter, double drop_tol, double
     bool EXECSTYLE_X0W0_provided = (X0.n_nonzero > 0) && (W0.n_nonzero > 0);
     bool EXECSTYLE_Y2_provided = Y2.n_rows == Y1.n_rows;
 
+    printf("EXECSTYLE_Y2_provided = %d \n", EXECSTYLE_Y2_provided);
+
     // Get the key size parameters
     integer p = Y1.n_rows;
     integer n1 = Y1.n_cols;
     integer n2 = -1;
 
-    if (p < 2) // Only work iwth matrices
+    if (p < 2) // Only work wth matrices
     {
         stop(" The number of random variables 'p' must be larger than 1.");
     }
