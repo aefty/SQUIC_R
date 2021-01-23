@@ -42,7 +42,7 @@ List SQUIC_R(arma::mat &Y1, double lambda, int max_iter, double drop_tol, double
     // Set SQUIC execution style
     bool EXECSTYLE_M_provided = M.n_nonzero > 0;
     bool EXECSTYLE_X0W0_provided = (X0.n_nonzero > 0) && (W0.n_nonzero > 0);
-    bool EXECSTYLE_Y2_provided = Y2.n_rows == Y1.n_rows;
+    bool EXECSTYLE_Y2_provided = (Y2.n_rows == Y1.n_rows);
 
     printf("EXECSTYLE_Y2_provided = %d \n", EXECSTYLE_Y2_provided);
 
