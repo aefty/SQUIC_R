@@ -108,31 +108,29 @@ DEMO.load_data<-function(type="trid",p=4^5,n=100)
 	return(output);
 }
 
-DEMO.lambda_search<- function(type="trid", p=4^5 , n=100 ,  criterion="LL"){
+DEMO.lambda_search<- function(type="trid", p=4^5 , n=100 ,  criterion="LL",lambda_sample=.5){
 
 
   	# Generate data
 	out<-SQUIC::DEMO.load_data(type=type , p=p ,n=n );
 	X_star<-out$X_star;
-	data_full<-out$data;
+	data<-out$data;
 
 
 	# Generate a lambda_set
-	out<-SQUIC::SQUIC_S(data_train=data_full , lambda_sample=.5,lambda_set_length=10);
+	out<-SQUIC::SQUIC_S(data=data , lambda_sample=lambda_sample ,lambda_set_length=10);
 	print("SQUIC::SQUIC_S")
 	print(out);
 	lambda_set<-out$lambda_set;
 
 	# Do CV on for best lambda
-	out<-SQUIC::SQUIC_CV(data_train=data_full , lambda_set=lambda_set , criterion=criterion );
+	out<-SQUIC::SQUIC_CV(data=data , lambda_set=lambda_set , criterion=criterion );
 	print("SQUIC::SQUIC_CV")
 	print(out);
 	lambda_opt=output$lambda_opt;
 	
 	alg="SQUIC"
-	out<-SQUIC::DEMO.compare(alg=alg , data_train=data_full , lambda=lambda_opt , tol=1e-4 , max_iter=10 , X_star=X_star);
-
-
+	out<-SQUIC::DEMO.compare(alg=alg , data_train=data , lambda=lambda_opt , tol=1e-4 , max_iter=10 , X_star=X_star);
 
 }
 
@@ -176,9 +174,9 @@ DEMO.performance <- function(type="trid",lambda=0.4,n=100,tol=1e-4,max_iter=10)
 	return(output);
 }
 
-DEMO.compare <- function(alg,data_train,lambda=0.5,tol=1e-4,max_iter=10, X_star= NULL) 
+DEMO.compare <- function(alg,data,lambda=0.5,tol=1e-4,max_iter=10, X_star= NULL) 
 {
-	data_train_t <- Matrix::t(data_train);
+	data_t <- Matrix::t(data);
 
 	verbose = 1;
 
@@ -187,21 +185,21 @@ DEMO.compare <- function(alg,data_train,lambda=0.5,tol=1e-4,max_iter=10, X_star=
 	{
 		print("#QUIC")
 		# QUIC
-		out	<-QUIC::QUIC(S=cov(data_train_t), rho=lambda, path = NULL, tol = tol, msg = verbose, maxIter = max_iter, X.init =NULL, W.init = NULL)
+		out	<-QUIC::QUIC(S=cov(data_t), rho=lambda, path = NULL, tol = tol, msg = verbose, maxIter = max_iter, X.init =NULL, W.init = NULL)
 		X	<-out$X;
 	}
 	else if(alg=="SQUIC")
 	{
 		print("#SQUIC")
 		# SQUIC
-		out	<-SQUIC::SQUIC(data_train=data_train ,lambda=lambda , max_iter=max_iter , drop_tol=tol/2 , term_tol=tol , verbose=verbose );
+		out	<-SQUIC::SQUIC(Y1=data ,lambda=lambda , max_iter=max_iter , drop_tol=tol/2 , term_tol=tol , verbose=verbose );
 		X	<-out$X;
 	}
 	else if(alg=="EQUAL")
 	{
 		print("#EQUAL")
 		# EQUAL
-		out	<-EQUAL::EQUAL(X=data_train_t,type=TRUE,sdiag=FALSE,lambda=lambda,lambda.min=sqrt(log(ncol(data_train_t))/nrow(data_train_t)),nlambda=1,err=tol,maxIter = max_iter,rho=1)
+		out	<-EQUAL::EQUAL(X=data_t,type=TRUE,sdiag=FALSE,lambda=lambda,lambda.min=sqrt(log(ncol(data_t))/nrow(data_t)),nlambda=1,err=tol,maxIter = max_iter,rho=1)
 		X	<-out$Omega[[1]];
 	}
 	else

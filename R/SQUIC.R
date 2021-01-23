@@ -15,9 +15,9 @@ usethis::use_package("BigQuic") # Use for multivriate data generation
 }
 
 # Main function
-SQUIC <- function(data_train, lambda, max_iter, drop_tol, term_tol,verbose=1, mode=0, M=NULL, X0=NULL, W0=NULL, data_test=NULL) {
+SQUIC <- function(Y1, lambda, max_iter, drop_tol, term_tol,verbose=1, mode=0, M=NULL, X0=NULL, W0=NULL, Y2=NULL) {
   
-  p<-nrow(data_train);
+  p<-nrow(Y1);
 
   if(is.null(M)){
 	  # Make empty sparse matrix of type dgCMatrix.
@@ -38,24 +38,24 @@ SQUIC <- function(data_train, lambda, max_iter, drop_tol, term_tol,verbose=1, mo
     }
   }
   
-  if(is.null(data_test)){
-	  # Make 1x1 matrix for data_test. This input must be provided , 
+  if(is.null(Y2)){
+	  # Make 1x1 matrix for Y2. This input must be provided , 
     # if p_test!=p_train ... thatn the test data is ignored.
-	  data_test<-matrix(1.0, nrow = 1, ncol = 1)
+	  Y2<-matrix(1.0, nrow = 1, ncol = 1)
   }else{
-     if(nrow(data_test) !=p ){
-      stop('data_test must the same number of rows as data_train.')
+     if(nrow(Y2) !=p ){
+      stop('Y2 must the same number of rows as Y1.')
     }
   }
 
-   out<-SQUIC::SQUIC_R(data_train , lambda , max_iter , drop_tol , term_tol , verbose , mode ,M , X0 , W0 , data_test );
+   out<-SQUIC::SQUIC_R(Y1 , lambda , max_iter , drop_tol , term_tol , verbose , mode ,M , X0 , W0 , Y2 );
    return(out);
 }
 
-SQUIC_S<-function(data_full, lambda_sample=.5,lambda_set_length=10){
+SQUIC_S<-function(data, lambda_sample=.5,lambda_set_length=10){
 
 	# Get sample covarinace matrix by running SQUIC with max_iter=0;
-	squic_output<-SQUIC::SQUIC(data_train=data_full,lambda=lambda_sample, max_iter=0, drop_tol=0, term_tol=0);
+	squic_output<-SQUIC::SQUIC(Y1=data,lambda=lambda_sample, max_iter=0, drop_tol=0, term_tol=0);
 
 	# Get absolute value of the max and mean of nonzeros in S
 	S<-squic_output$S;
@@ -86,11 +86,11 @@ SQUIC_S<-function(data_full, lambda_sample=.5,lambda_set_length=10){
 }
 
 # Cross validation
-SQUIC_CV<-function(data_full , lambda_set,K=4, drop_tol=0.5e-2,term_tol=1e-2 , max_iter=3 , criterion="LL" , M=NULL , X0=NULL , W0=NULL)
+SQUIC_CV<-function(data , lambda_set,K=4, drop_tol=0.5e-2,term_tol=1e-2 , max_iter=3 , criterion="LL" , M=NULL , X0=NULL , W0=NULL)
 {
 
-	p=nrow(data_full);
-	n_full=ncol(data_full);
+	p=nrow(data);
+	n_full=ncol(data);
 
 	#Construct active sample sets
 	lambda_set<-sort(lambda_set,decreasing =TRUE)
@@ -104,8 +104,8 @@ SQUIC_CV<-function(data_full , lambda_set,K=4, drop_tol=0.5e-2,term_tol=1e-2 , m
 	for (k in 1:K) # For each active set of sample indicies ...
 	{
 		# Construct the test and train data
-		data_train<-data_full[,-active_set[[k]]];
-		data_test<-data_full[,active_set[[k]]];
+		data_train<-data[,-active_set[[k]]];
+		data_test<-data[,active_set[[k]]];
 		n_train<-ncol(data_train);
 		n_test<-ncol(data_test);
 
@@ -116,12 +116,12 @@ SQUIC_CV<-function(data_full , lambda_set,K=4, drop_tol=0.5e-2,term_tol=1e-2 , m
 			lambda=lambda_set[l];
 	
 			# run a rough (low tolerences and iterations)
-			squic_output<-SQUIC::SQUIC(data_train=data_train, lambda=lambda, max_iter=max_iter, drop_tol=drop_tol , term_tol=term_tol , verbose=0 , M=M , X0=X0 , W0=W0 , data_test=data_test );
+			out<-SQUIC::SQUIC(Y1=data_train, lambda=lambda, max_iter=max_iter, drop_tol=drop_tol , term_tol=term_tol , verbose=0 , M=M , X0=X0 , W0=W0 , Y2=data_test );
 
 			#Extract the results form SQUIC
-			X<-squic_output$X;
-			logdetX<-squic_output$info_logdetX;
-			trXS_test<-squic_output$info_trXS_test;
+			X<-out$X;
+			logdetX<-out$info_logdetX;
+			trXS_test<-out$info_trXS_test;
 			nnzX<-Matrix::nnzero(X);
 
 			#logliklihood (Not negative logliklihood!!!)
@@ -152,7 +152,6 @@ SQUIC_CV<-function(data_full , lambda_set,K=4, drop_tol=0.5e-2,term_tol=1e-2 , m
 	lambda_opt<-lambda_set[l_inx];
 
 	output <- list(
-		"lambda_set"   = lambda_set,
 		"lambda_opt"   = lambda_opt,
     	"CV_mean"	   = CV_mean
 	);
