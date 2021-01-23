@@ -70,7 +70,7 @@ SQUIC_S<-function(data, lambda_sample=.5,lambda_set_length=10){
 	up  <- (lambda_sample + S_abs_max)/2;
 	low <- (lambda_sample + S_abs_min)/2;
 
-	delta     <- (low-up)/lambda_set_length;
+	delta     <- (low-up)/(lambda_set_length+1);
 	lambda_set<- seq(up , low , delta);
 	
 	output <- list(
@@ -86,7 +86,7 @@ SQUIC_S<-function(data, lambda_sample=.5,lambda_set_length=10){
 }
 
 # Cross validation
-SQUIC_CV<-function(data , lambda_set,K=4, drop_tol=0.5e-2,term_tol=1e-2 , max_iter=3 , criterion="LL" , M=NULL , X0=NULL , W0=NULL)
+SQUIC_CV<-function(data , lambda_set,K=4, drop_tol=0.5e-3,term_tol=1e-3 , max_iter=3 , criterion="LL" , M=NULL , X0=NULL , W0=NULL)
 {
 
 	p=nrow(data);
@@ -94,7 +94,7 @@ SQUIC_CV<-function(data , lambda_set,K=4, drop_tol=0.5e-2,term_tol=1e-2 , max_it
 
 	#Construct active sample sets
 	lambda_set<-sort(lambda_set,decreasing =TRUE)
-	nlambda=length(lambda_set)
+	nlambda <- length(lambda_set)
 	active_set<-split(1:n_full, rep(1:K, length = n_full));
 
 	# Cross Validation Matrix
@@ -120,9 +120,12 @@ SQUIC_CV<-function(data , lambda_set,K=4, drop_tol=0.5e-2,term_tol=1e-2 , max_it
 
 			#Extract the results form SQUIC
 			X<-out$X;
-			logdetX<-out$info_logdetX;
-			trXS_test<-out$info_trXS_test;
+			logdetX<-out$info_logdetX_Y1;
+			trXS_test<-out$info_trXS_Y2;
 			nnzX<-Matrix::nnzero(X);
+
+			print(k)
+			print(l)
 
 			#logliklihood (Not negative logliklihood!!!)
 			logliklihood<-( p*log(2*3.14) + logdetX - trXS_test )*n_test/2;

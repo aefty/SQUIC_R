@@ -25,8 +25,8 @@ extern "C"
         double *&info_times,
         double *&info_objective,
         double &info_dgap,
-        double &info_logdetx,
-        double &info_trXS_test);
+        double &info_logdetX_Y1,
+        double &info_trXS_Y2);
 }
 
 using namespace Rcpp;
@@ -224,8 +224,8 @@ List SQUIC_R(arma::mat &Y1, double lambda, int max_iter, double drop_tol, double
     // Default Result Values
     int info_num_iter = -1;                                            // Number of Newten steps required by SQUIC
     double info_dgap = -1e-12;                                         // Duality Gap between primal and dual
-    double info_logdetx = -1e-12;                                      // Can be used for likelihood (AIC or BIC) computation of test data
-    double info_trXS_test = -1e-12;                                    // Can be used for likelihood (AIC or BIC) computation of test data
+    double info_logdetX_Y1 = -1e-12;                                   // Can be used for likelihood (AIC or BIC) computation of test data
+    double info_trXS_Y2 = -1e-12;                                      // Can be used for likelihood (AIC or BIC) computation of test data
     double *info_times_buffer = new double[6];                         // This need to be of size 6
     double *info_objective_buffer = new double[std::max(1, max_iter)]; // The objective value list, must be of size max(max_iter,1). If max_iter=0, we still keep this with size of 1
 
@@ -244,8 +244,8 @@ List SQUIC_R(arma::mat &Y1, double lambda, int max_iter, double drop_tol, double
         info_times_buffer,
         info_objective_buffer,
         info_dgap,
-        info_logdetx,
-        info_trXS_test);
+        info_logdetX_Y1,
+        info_trXS_Y2);
 
     // Copy data it standard format
     // In order to access the internal arrays of the SpMat class call .sync()
@@ -301,8 +301,8 @@ List SQUIC_R(arma::mat &Y1, double lambda, int max_iter, double drop_tol, double
                 Named("info_time_coordinate_upd") = info_times_buffer[5],
                 Named("info_objective") = info_objective,
                 Named("info_duality_gap") = info_dgap,
-                Named("info_logdetX") = info_logdetx,
-                Named("info_trXS_test") = info_trXS_test);
+                Named("info_logdetX_Y1") = info_logdetX_Y1,
+                Named("info_trXS_Y2") = info_trXS_Y2);
         }
         {
             // no info_trXS_test ouput
@@ -317,7 +317,7 @@ List SQUIC_R(arma::mat &Y1, double lambda, int max_iter, double drop_tol, double
                 Named("info_time_coordinate_upd") = info_times_buffer[5],
                 Named("info_objective") = info_objective,
                 Named("info_duality_gap") = info_dgap,
-                Named("info_logdetX") = info_logdetx);
+                Named("info_logdetX_Y1") = info_logdetX_Y1);
         }
     }
 
