@@ -306,6 +306,7 @@ List SQUIC_R(arma::mat &Y1, double lambda, int max_iter, double drop_tol, double
                 Named("info_logdetX_Y1") = info_logdetX_Y1,
                 Named("info_trXS_Y2") = info_trXS_Y2);
         }
+        else
         {
             // no info_trXS_test ouput
             output = Rcpp::List::create(
