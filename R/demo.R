@@ -130,7 +130,15 @@ DEMO.lambda_search<- function(type="trid", p=4^5 , n=100 ,  criterion="LL",lambd
 	alg="SQUIC";
 	out<-SQUIC::DEMO.compare(alg=alg , data=data , lambda=lambda_opt , tol=1e-4 , max_iter=10 , X_star=X_star);
 
-	return(out);
+	output <- list(
+		"f1" = out$f1, 
+		"acc" = out$acc,
+		"lambda_opt"=lambda_opt,
+		"lambda_set" =lambda_set
+	);
+
+
+	return(output);
 }
 
 DEMO.performance <- function(type="trid",lambda=0.4,n=100,tol=1e-4,max_iter=10) 
