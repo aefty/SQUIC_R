@@ -131,7 +131,7 @@ DEMO.lambda_search<- function(type="trid", p=4^5 , n=100 ,  criterion="LL",lambd
 	acc_set <-replicate(length(lambda_set), 0);	
 	
 	for (i in 1:length(lambda_set)) {
-		out<-SQUIC::DEMO.compare(alg=alg , data=data , lambda=lambda_opt , tol=1e-4 , max_iter=10 , X_star=X_star);
+		out<-SQUIC::DEMO.compare(alg=alg , data=data , lambda=lambda_set[i] , tol=1e-4 , max_iter=10 , X_star=X_star);
 		f1_set[i]<-out$f1;
 		acc_set[i]<-out$acc;
 	}
