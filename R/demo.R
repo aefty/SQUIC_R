@@ -126,14 +126,20 @@ DEMO.lambda_search<- function(type="trid", p=4^5 , n=100 ,  criterion="LL",lambd
 	print("SQUIC::SQUIC_CV");
 	print(out);
 	lambda_opt=out$lambda_opt;
+
+	f1_set	<-replicate(length(lambda_set), 0);
+	acc_set <-replicate(length(lambda_set), 0);	
 	
-	alg="SQUIC";
-	out<-SQUIC::DEMO.compare(alg=alg , data=data , lambda=lambda_opt , tol=1e-4 , max_iter=10 , X_star=X_star);
+	for (i in 1:length(lambda_set)) {
+		out<-SQUIC::DEMO.compare(alg=alg , data=data , lambda=lambda_opt , tol=1e-4 , max_iter=10 , X_star=X_star);
+		f1_set[i]<-out$f1;
+		acc_set[i]<-out$acc;
+	}
 
 	output <- list(
-		"f1" = out$f1, 
-		"acc" = out$acc,
-		"lambda_opt"=lambda_opt,
+		"f1_set"     = f1_set, 
+		"acc_set"    = acc_set,
+		"lambda_opt" =lambda_opt,
 		"lambda_set" =lambda_set
 	);
 
