@@ -70,7 +70,7 @@ SQUIC_S<-function(data, lambda_sample=.5,lambda_set_length=10){
 	up  <- (lambda_sample + S_abs_max)/2;
 	low <- (lambda_sample + S_abs_min)/2;
 
-	delta     <- (low-up)/(lambda_set_length+1);
+	delta     <- (low-up)/(lambda_set_length-1);
 	lambda_set<- seq(up , low , delta);
 	
 	output <- list(
@@ -123,9 +123,6 @@ SQUIC_CV<-function(data , lambda_set,K=4, drop_tol=0.5e-3,term_tol=1e-3 , max_it
 			logdetX<-out$info_logdetX_Y1;
 			trXS_test<-out$info_trXS_Y2;
 			nnzX<-Matrix::nnzero(X);
-
-			print(k)
-			print(l)
 
 			#logliklihood (Not negative logliklihood!!!)
 			logliklihood<-( p*log(2*3.14) + logdetX - trXS_test )*n_test/2;
