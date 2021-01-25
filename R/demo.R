@@ -108,7 +108,7 @@ DEMO.load_data<-function(type="trid",p=4^5,n=100)
 	return(output);
 }
 
-DEMO.lambda_search<- function(type="trid", p=4^5 , n=100 ,  criterion="LL",lambda_sample=.5){
+DEMO.lambda_search<- function(type="trid", p=4^5 , n=100 , lambda_sample=.5){
 
   	# Generate data
 	out<-SQUIC::DEMO.load_data(type=type , p=p ,n=n );
@@ -122,10 +122,21 @@ DEMO.lambda_search<- function(type="trid", p=4^5 , n=100 ,  criterion="LL",lambd
 	lambda_set<-out$lambda_set;
 
 	# Do CV on for best lambda
-	out<-SQUIC::SQUIC_CV(data=data , lambda_set=lambda_set , criterion=criterion );
-	print("SQUIC::SQUIC_CV");
+	out<-SQUIC::SQUIC_CV(data=data , lambda_set=lambda_set , criterion="LL" );
+	print("SQUIC::SQUIC_CV LL");
 	print(out);
-	lambda_opt=out$lambda_opt;
+	lambda_opt_LL=out$lambda_opt;
+
+	out<-SQUIC::SQUIC_CV(data=data , lambda_set=lambda_set , criterion="AIC" );
+	print("SQUIC::SQUIC_CV AIC");
+	print(out);
+	lambda_opt_AIC=out$lambda_opt;
+
+
+	out<-SQUIC::SQUIC_CV(data=data , lambda_set=lambda_set , criterion="BIC" );
+	print("SQUIC::SQUIC_CV BIC");
+	print(out);
+	lambda_opt_BIC=out$lambda_opt;
 
 	f1_set	<-replicate(length(lambda_set), 0);
 	acc_set <-replicate(length(lambda_set), 0);	
@@ -139,7 +150,9 @@ DEMO.lambda_search<- function(type="trid", p=4^5 , n=100 ,  criterion="LL",lambd
 	output <- list(
 		"f1_set"     = f1_set, 
 		"acc_set"    = acc_set,
-		"lambda_opt" =lambda_opt,
+		"lambda_opt_LL" =lambda_opt_LL,
+		"lambda_opt_AIC" =lambda_opt_AIC,
+		"lambda_opt_BIC" =lambda_opt_BIC,				
 		"lambda_set" =lambda_set
 	);
 
