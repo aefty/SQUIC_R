@@ -52,26 +52,26 @@ SQUIC <- function(Y1, lambda, max_iter, drop_tol, term_tol,verbose=1, mode=0, M=
    return(out);
 }
 
-SQUIC_S<-function(data, lambda_sample=.5,lambda_set_length=10){
+SQUIC_S<-function(data, lambda_sample=.5,lambda_set_length=10 , M=NULL){
 
 	# Get sample covarinace matrix by running SQUIC with max_iter=0;
-	squic_output<-SQUIC::SQUIC(Y1=data,lambda=lambda_sample, max_iter=0, drop_tol=0, term_tol=0);
+	squic_output<-SQUIC::SQUIC(Y1=data,lambda=lambda_sample, max_iter=0, drop_tol=0, term_tol=0, M=M);
 
 	# Get absolute value of the max and mean of nonzeros in S
 	S<-squic_output$S;
 	S_abs_vec = abs(S@x);
 
-	S_abs_max<-max(S_abs_vec);
-	S_abs_min<-min(S_abs_vec);
-	S_abs_mean<-mean(S_abs_vec);
-	S_abs_sd<-sd(S_abs_vec);
-	S_nnz_per_row<-length(S_abs_vec)/p;
+	S_abs_max     <- max(S_abs_vec);
+	S_abs_min     <- min(S_abs_vec);
+	S_abs_mean    <- mean(S_abs_vec);
+	S_abs_sd      <- sd(S_abs_vec);
+	S_nnz_per_row <- length(S_abs_vec)/p;
 
 	up  <- (lambda_sample + S_abs_max)/2;
 	low <- (lambda_sample + S_abs_min)/2;
 
-	delta     <- (low-up)/(lambda_set_length-1);
-	lambda_set<- seq(up , low , delta);
+	delta      <- (low-up)/(lambda_set_length-1);
+	lambda_set <- seq(up , low , delta);
 	
 	output <- list(
 		"S_nnz_per_row" = S_nnz_per_row, 
@@ -86,7 +86,7 @@ SQUIC_S<-function(data, lambda_sample=.5,lambda_set_length=10){
 }
 
 # Cross validation
-SQUIC_CV<-function(data , lambda_set,K=4, drop_tol=0.5e-3,term_tol=1e-3 , max_iter=3 , criterion="LL" , M=NULL , X0=NULL , W0=NULL)
+SQUIC_CV<-function(data , lambda_set,K=4, drop_tol=0.5e-3,term_tol=1e-3 , max_iter=3 , criterion="AIC" , M=NULL , X0=NULL , W0=NULL)
 {
 
 	p=nrow(data);
@@ -128,17 +128,15 @@ SQUIC_CV<-function(data , lambda_set,K=4, drop_tol=0.5e-3,term_tol=1e-3 , max_it
 			logliklihood<-( p*log(2*3.14) + logdetX - trXS_test )*n_test/2;
 
 			# For all criterion smaller is better
-			if (criterion == "LL") # Defualt criterion is logliklihood (negative)
-			{
-				CV[k,l]=-logliklihood;
-           	} 
-		   	else if (criterion == "AIC") # AIC Criterion 
+		   	if (criterion == "AIC") # AIC Criterion 
 		   	{
-                CV[k,l] = 2* (p+(nnzX-p)/2) - 2*logliklihood ;
+				c = 2;
+                CV[k,l] <-  c*(p+(nnzX-p)/2) - 2*logliklihood ;
             }
             else if (criterion == "BIC") # BIC Criterion
 			{
-                CV[k,l] = (p+(nnzX-p)/2) *log(n_test) - 2*logliklihood; 
+				c = log(n_test);
+                CV[k,l] <-  c*(p+(nnzX-p)/2) - 2*logliklihood ;
             }
 			else{
 				stop("Criterion specfied is not valid.")

@@ -122,11 +122,6 @@ DEMO.lambda_search<- function(type="trid", p=4^5 , n=100 , lambda_sample=.4){
 	lambda_set<-out$lambda_set;
 
 	# Do CV on for best lambda
-	out<-SQUIC::SQUIC_CV(data=data , lambda_set=lambda_set , criterion="LL" );
-	print("SQUIC::SQUIC_CV LL");
-	print(out);
-	lambda_opt_LL=out$lambda_opt;
-
 	out<-SQUIC::SQUIC_CV(data=data , lambda_set=lambda_set , criterion="AIC" );
 	print("SQUIC::SQUIC_CV AIC");
 	print(out);
@@ -152,7 +147,6 @@ DEMO.lambda_search<- function(type="trid", p=4^5 , n=100 , lambda_sample=.4){
 		"nnzpr_X_set"	 = nnzpr_X_set,
 		"f1_set"     	 = f1_set, 
 		"acc_set"    	 = acc_set,
-		"lambda_opt_LL"  = lambda_opt_LL,
 		"lambda_opt_AIC" = lambda_opt_AIC,
 		"lambda_opt_BIC" = lambda_opt_BIC,				
 		"lambda_set" 	 = lambda_set
