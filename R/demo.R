@@ -132,7 +132,6 @@ DEMO.lambda_search<- function(type="trid", p=4^5 , n=100 , lambda_sample=.4){
 	print(out);
 	lambda_opt_AIC=out$lambda_opt;
 
-
 	out<-SQUIC::SQUIC_CV(data=data , lambda_set=lambda_set , criterion="BIC" );
 	print("SQUIC::SQUIC_CV BIC");
 	print(out);
@@ -158,7 +157,6 @@ DEMO.lambda_search<- function(type="trid", p=4^5 , n=100 , lambda_sample=.4){
 		"lambda_opt_BIC" = lambda_opt_BIC,				
 		"lambda_set" 	 = lambda_set
 	);
-
 
 	return(output);
 }
