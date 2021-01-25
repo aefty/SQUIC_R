@@ -74,7 +74,7 @@ SQUIC_S<-function(data, lambda_sample=.5,lambda_set_length=10){
 	lambda_set<- seq(up , low , delta);
 	
 	output <- list(
-		"nnz_S"			= nnz_S, 
+		"S_nnz_per_row" = S_nnz_per_row, 
 		"S_abs_max"		= S_abs_max, 
 		"S_abs_min" 	= S_abs_min, 
 		"S_abs_mean"	= S_abs_mean, 
