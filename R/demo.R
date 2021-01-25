@@ -108,6 +108,7 @@ DEMO.load_data<-function(type="trid",p=4^5,n=100)
 	return(output);
 }
 
+
 DEMO.lambda_search<- function(type="trid", p=4^5 , n=100 , lambda_sample=.4){
 
   	# Generate data
@@ -122,22 +123,17 @@ DEMO.lambda_search<- function(type="trid", p=4^5 , n=100 , lambda_sample=.4){
 	lambda_set<-out$lambda_set;
 
 	# Do CV on for best lambda
-	out<-SQUIC::SQUIC_CV(data=data , lambda_set=lambda_set , criterion="AIC" );
+	out<-SQUIC::SQUIC_CV(data=data , lambda_set=lambda_set );
 	print("SQUIC::SQUIC_CV AIC");
 	print(out);
-	lambda_opt_AIC=out$lambda_opt;
-
-	out<-SQUIC::SQUIC_CV(data=data , lambda_set=lambda_set , criterion="BIC" );
-	print("SQUIC::SQUIC_CV BIC");
-	print(out);
-	lambda_opt_BIC=out$lambda_opt;
+	lambda_opt=out$lambda_opt;
 
 	f1_set	<-replicate(length(lambda_set), 0);
 	acc_set <-replicate(length(lambda_set), 0);
 	nnzpr_X_set <-replicate(length(lambda_set), 0);	
 	
 	for (i in 1:length(lambda_set)) {
-		out<-SQUIC::DEMO.compare(alg=alg , data=data , lambda=lambda_set[i] , tol=1e-4 , max_iter=10 , X_star=X_star);
+		out<-SQUIC::DEMO.compare(alg=alg , data=data , lambda=lambda_set[i] , tol=1e-3 , max_iter=5 , X_star=X_star);
 		f1_set[i]<-out$f1;
 		acc_set[i]<-out$acc;
 		nnzpr_X_set[i]<- (Matrix::nnzero(out$X)/p);
@@ -147,8 +143,7 @@ DEMO.lambda_search<- function(type="trid", p=4^5 , n=100 , lambda_sample=.4){
 		"nnzpr_X_set"	 = nnzpr_X_set,
 		"f1_set"     	 = f1_set, 
 		"acc_set"    	 = acc_set,
-		"lambda_opt_AIC" = lambda_opt_AIC,
-		"lambda_opt_BIC" = lambda_opt_BIC,				
+		"lambda_opt"     = lambda_opt,				
 		"lambda_set" 	 = lambda_set
 	);
 
@@ -212,7 +207,7 @@ DEMO.compare <- function(alg,data,lambda=0.5,tol=1e-4,max_iter=10, X_star= NULL)
 	{
 		print("#SQUIC")
 		# SQUIC
-		out	<-SQUIC::SQUIC(Y1=data ,lambda=lambda , max_iter=max_iter , drop_tol=tol/2 , term_tol=tol , verbose=verbose );
+		out	<-SQUIC::SQUIC(Y1=data ,lambda=lambda , max_iter=max_iter , drop_tol=tol/10 , term_tol=tol , verbose=verbose );
 		X	<-out$X;
 	}
 	else if(alg=="EQUAL")
@@ -238,16 +233,16 @@ DEMO.compare <- function(alg,data,lambda=0.5,tol=1e-4,max_iter=10, X_star= NULL)
 
 		output <- list(
 			"time" = time_end-time_start,
-			"X" = X, 
-			"f1" = MLmetrics::F1_Score(X_star_label,X_label, positive = "1"),
-			"acc" = MLmetrics::Accuracy(X_star_label,X_label)				
+			"X"    = X, 
+			"f1"   = MLmetrics::F1_Score(X_star_label,X_label, positive = "1"),
+			"acc"  = MLmetrics::Accuracy(X_star_label,X_label)				
 		);
 
 	}else{
 
 		# Convert matrix to labels
 		output <- list(
-			"X" = X, 
+			"X"    = X, 
 			"time" = time_end-time_start	
 		);
 	}

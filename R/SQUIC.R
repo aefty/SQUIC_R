@@ -85,8 +85,10 @@ SQUIC_S<-function(data, lambda_sample=.5,lambda_set_length=10 , M=NULL){
 	return(output);
 }
 
+
+
 # Cross validation
-SQUIC_CV<-function(data , lambda_set,K=4, drop_tol=0.5e-3,term_tol=1e-3 , max_iter=3 , criterion="AIC" , M=NULL , X0=NULL , W0=NULL)
+SQUIC_CV<-function(data , lambda_set,K=4, drop_tol=1e-4,term_tol=1e-3 , max_iter=3  , M=NULL , X0=NULL , W0=NULL)
 {
 
 	p=nrow(data);
@@ -116,7 +118,7 @@ SQUIC_CV<-function(data , lambda_set,K=4, drop_tol=0.5e-3,term_tol=1e-3 , max_it
 			lambda=lambda_set[l];
 	
 			# run a rough (low tolerences and iterations)
-			out<-SQUIC::SQUIC(Y1=data_train, lambda=lambda, max_iter=max_iter, drop_tol=drop_tol , term_tol=term_tol , verbose=0 , M=M , X0=X0 , W0=W0 , Y2=data_test );
+			out<-SQUIC::SQUIC( Y1=data_train , lambda=lambda , max_iter=max_iter , drop_tol=drop_tol , term_tol=term_tol , verbose=0 , M=M , X0=X0 , W0=W0 , Y2=data_test );
 
 			#Extract the results form SQUIC
 			X<-out$X;
@@ -124,23 +126,12 @@ SQUIC_CV<-function(data , lambda_set,K=4, drop_tol=0.5e-3,term_tol=1e-3 , max_it
 			trXS_test<-out$info_trXS_Y2;
 			nnzX<-Matrix::nnzero(X);
 
-			#logliklihood (Not negative logliklihood!!!)
-			logliklihood<-( p*log(2*3.14) + logdetX - trXS_test )*n_test/2;
+			#logliklihood
+			logliklihood<- (-p*log(2*3.14)  +  logdetX - trXS_test )*n_test/2;
 
-			# For all criterion smaller is better
-		   	if (criterion == "AIC") # AIC Criterion 
-		   	{
-				c = 2;
-                CV[k,l] <-  c*(p+(nnzX-p)/2) - 2*logliklihood ;
-            }
-            else if (criterion == "BIC") # BIC Criterion
-			{
-				c = log(n_test);
-                CV[k,l] <-  c*(p+(nnzX-p)/2) - 2*logliklihood ;
-            }
-			else{
-				stop("Criterion specfied is not valid.")
-			}
+			# AIC Criterion 
+            CV[k,l] <-  2*(p+(nnzX-p)/2) - 2*logliklihood ;
+          
 		}
 	}
 
