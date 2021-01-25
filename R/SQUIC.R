@@ -65,7 +65,7 @@ SQUIC_S<-function(data, lambda_sample=.5,lambda_set_length=10){
 	S_abs_min<-min(S_abs_vec);
 	S_abs_mean<-mean(S_abs_vec);
 	S_abs_sd<-sd(S_abs_vec);
-	nnz_S<-length(S_abs_vec);
+	S_nnz_per_row<-length(S_abs_vec)/p;
 
 	up  <- (lambda_sample + S_abs_max)/2;
 	low <- (lambda_sample + S_abs_min)/2;
@@ -147,9 +147,9 @@ SQUIC_CV<-function(data , lambda_set,K=4, drop_tol=0.5e-3,term_tol=1e-3 , max_it
 	}
 
 	# Find the smallest value in the CV matrix and select the corresponding lambda
-	CV_mean<-colMeans(CV);
-	l_inx<-which.min(CV_mean);
-	lambda_opt<-lambda_set[l_inx];
+	CV_mean    <-colMeans(CV);
+	l_inx	   <-which.min(CV_mean);
+	lambda_opt <-lambda_set[l_inx];
 
 	output <- list(
 		"lambda_opt"   = lambda_opt,
