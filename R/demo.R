@@ -109,7 +109,7 @@ DEMO.load_data<-function(type="trid",p=4^5,n=100)
 }
 
 
-DEMO.lambda_search<- function(type="trid", p=4^5 ,lambda_sample=.3){
+DEMO.lambda_search<- function(type="trid", p=4^5 ,lambda_sample=.3, K=4){
 
   	# Generate data
 	out<-SQUIC::DEMO.load_data(type=type , p=p ,n=n );
@@ -123,7 +123,7 @@ DEMO.lambda_search<- function(type="trid", p=4^5 ,lambda_sample=.3){
 	lambda_set<-out$lambda_set;
 
 	# Do CV on for best lambda
-	out<-SQUIC::SQUIC_CV(data=data , lambda_set=lambda_set );
+	out<-SQUIC::SQUIC_CV(data=data , lambda_set=lambda_set , K=K );
 	print("SQUIC::SQUIC_CV AIC");
 	print(out);
 	lambda_opt <- out$lambda_opt;
