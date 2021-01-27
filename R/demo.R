@@ -91,8 +91,12 @@ DEMO.make_data_and_save<-function(){
 }
 
 
-DEMO.load_data<-function(type="trid",p=4^5,n=100)
+DEMO.load_data<-function(type="trid",p=4^5)
 {
+
+	# hard code n=100, all the example synthetic dataset have 100 samples
+	n=100;
+
     matrix_folder=system.file("extdata",package = "SQUIC")
 	
     print(sprintf("# Reading Matrix From file: type=%s p=%d n=%d",type,p,n));
