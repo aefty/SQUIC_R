@@ -88,7 +88,7 @@ SQUIC_S<-function(data, lambda_sample=.5,lambda_set_length=10 , M=NULL){
 
 
 # Cross validation
-SQUIC_CV<-function(data , lambda_set,K=4, drop_tol=1e-4,term_tol=1e-3 , max_iter=3  , M=NULL , X0=NULL , W0=NULL)
+SQUIC_CV<-function(data , lambda_set, K=5 , criterion="AIC" drop_tol=1e-3,term_tol=1e-2 , max_iter=5  , M=NULL , X0=NULL , W0=NULL)
 {
 
 	p=nrow(data);
@@ -129,9 +129,22 @@ SQUIC_CV<-function(data , lambda_set,K=4, drop_tol=1e-4,term_tol=1e-3 , max_iter
 			#logliklihood
 			logliklihood<- (-p*log(2*3.14)  +  logdetX - trXS_test )*n_test/2;
 
-			# AIC Criterion 
-            CV[k,l] <-  2*(p+(nnzX-p)/2) - 2*logliklihood ;
-          
+			# The inverse covariance is symmetric matrix
+			num_params = (p+(nnzX-p)/2);
+
+			if(criterion=="AIC")
+			{
+				CV[k,l] <-  (2*num_params - 2*logliklihood) ;
+			}else if(criterion=="AICc")
+			{
+				CV[k,l] <-  (2*num_params - 2*logliklihood) + 2*(num_params^2+num_params)/(n_train-num_params-1);
+
+			}else if(criterion=="BIC")
+			{
+				CV[k,l] <-  (log(n_train)*num_params - 2*logliklihood) ;
+			}else{
+				stop("Unkown criterion")
+			}
 		}
 	}
 
