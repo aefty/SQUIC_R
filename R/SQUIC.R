@@ -88,7 +88,7 @@ SQUIC_S<-function(data, lambda_sample=.5,lambda_set_length=10 , M=NULL){
 
 
 # Cross validation
-SQUIC_CV<-function(data , lambda_set, K=5 , criterion="AIC" drop_tol=1e-3,term_tol=1e-2 , max_iter=5  , M=NULL , X0=NULL , W0=NULL)
+SQUIC_CV<-function(data , lambda_set, K=5 , criterion="AIC", drop_tol=1e-3,term_tol=1e-2 , max_iter=5  , M=NULL , X0=NULL , W0=NULL)
 {
 
 	p=nrow(data);
