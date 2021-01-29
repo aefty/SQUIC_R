@@ -139,7 +139,7 @@ DEMO.lambda_search<- function(type="trid", p=4^5 ,lambda_sample=.3, K=5, criteri
 	nnzpr_X_set <-replicate(length(lambda_set), 0);	
 	
 	for (i in 1:length(lambda_set)) {
-		out<-SQUIC::DEMO.compare(alg=alg , data=data , lambda=lambda_set[i] , tol=1e-3 , max_iter=5 , X_star=X_star);
+		out<-SQUIC::DEMO.compare(alg="SQUIC" , data=data , lambda=lambda_set[i] , tol=1e-3 , max_iter=5 , X_star=X_star);
 		f1_set[i]      <-out$f1;
 		acc_set[i]     <-out$acc;
 		nnzpr_X_set[i] <- (Matrix::nnzero(out$X)/p);
