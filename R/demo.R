@@ -1,5 +1,5 @@
 
-DEMO.load_data<-function(p_power)
+DEMO.load_data<-function(p_power,normalize=TRUE)
 {
 
 	# hard code n=100, all the example synthetic dataset have 100 samples
@@ -13,11 +13,24 @@ DEMO.load_data<-function(p_power)
 	filename=paste(matrix_folder , "/" , "dataset_p", p , "_n" , n , ".RData", sep = "");
 	out<-get(load(filename));
 
-	output <- list(
-		"data" = out$data, 
-		"X_star" = out$X_star
-	);
+	if(normalize){
+		v=apply(data_set$data,1,var);
+		v=1/sqrt(v);
+		D=Matrix::Diagonal(v);
+		data_set$data=D%*%data_set$data;
+		output <- list(
+			"data" = out$data, 
+			"X_star" = out$X_star,
+			"D" = D
+		);
+	}else{
+		output <- list(
+			"data" = out$data, 
+			"X_star" = out$X_star
+		);
+	}
 
+	
 	return(output);
 }
 
