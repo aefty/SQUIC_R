@@ -8,7 +8,7 @@ DEMO.load_data<-function(p_power)
 
     matrix_folder=system.file("extdata",package = "SQUIC")
 	
-    print(sprintf("# Reading Matrix From file: type=%s p=%d n=%d",type,p,n));
+    print(sprintf("# Reading Matrix From file: p=%d n=%d",p,n));
 
 	filename=paste(matrix_folder , "/" , "dataset_p", p , "_n" , n , ".RData", sep = "");
 	out<-get(load(filename));
@@ -78,7 +78,7 @@ DEMO.performance <- function(p_power_max,lambda=0.4,n=100,tol=1e-4,max_iter=10)
         p=2^i;
 
         # Generate data
-	    out<-SQUIC::DEMO.load_data(type=type , p=p ,n=n );
+	    out<-SQUIC::DEMO.load_data(p=p);
 	    X_star<-out$X_star;
 	    data_full<-out$data;
 
