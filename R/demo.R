@@ -1,107 +1,16 @@
-DEMO.make_data<-function(type="trid",p=4^5,n=100)
-{
 
-	set.seed(1);
-
-    start_time <- Sys.time()
-	
-    print(sprintf("# Generating Percision Matrix: type=%s p=%d n=%d",type,p,n));
-
-	if(type=="eye") # Idendity Matrix for iC_star
-	{
-		iC_star <- Matrix::Diagonal(p);
-	}
-	else if(type=="trid") # Tridiagiaonl matrix for iC_star 
-	{
-		iC_star <- Matrix::bandSparse(p, p,
-				(-1):1,
-				list(rep(-6/9, p-1), 
-					rep(10/6, p), 
-					rep(-6/9, p-1)));
-		iC_star[1,1]=4/3;
-		iC_star[p,p]=4/3;
-	}
-		else if(type=="rand")  # Random matrix for iC_star (averag of 5 nnz per row) 
-	{
-		nnz_per_row=5;
-
-		# Make PSD symmetric Random Matrix
-		iC_star <-Matrix::rsparsematrix(p,p,NULL,nnz_per_row*p/2,symmetric=TRUE);
-		x=Matrix::colSums(abs(iC_star))+1;
-		D=Matrix::Diagonal(p,x);
-		iC_star<- iC_star+D;
-
-	}else{
-		stop("Unknown matrix type.")
-	}
-
-	# Generate data
-	z    <- replicate(n,rnorm(p));
-	iC_L <- chol(iC_star);
-	data <- matrix(solve(iC_L,z),p,n);
-
-	finish_time <- Sys.time()
-	print(sprintf("# Generating Data: time=%f",finish_time-start_time));
-
-	output <- list(
-		"data" = data, 
-		"X_star" = iC_star
-	);
-
-	return(output);
-}
-
-
-DEMO.make_data_and_save<-function(){
-
-	type="rand";
-	n=100;
-
-	for (i in 1:6) {
-		p=4^i;
-		print(sprintf("# Making dataset file: type=%s p=%d n=%d",type,p,n));
-		data<-SQUIC::DEMO.make_data(p=p,type=type,n=n);
-		file_name=paste("dataset_",type,"_",p,"_",n,".RData",sep = "");
-		save(data,file=file_name, version = 2);
-	}
-
-
-	type="eye";
-	n=100;
-
-	for (i in 1:6) {
-		p=4^i;
-		print(sprintf("# Making dataset file: type=%s p=%d n=%d",type,p,n));
-		data<-SQUIC::DEMO.make_data(p=p,type=type,n=n);
-		file_name=paste("dataset_",type,"_",p,"_",n,".RData",sep = "");
-		save(data,file=file_name, version = 2);
-	}
-
-
-	type="trid";
-	n=100;
-	for (i in 1:6) {
-		p=4^i;
-		print(sprintf("# Making dataset file: type=%s p=%d n=%d",type,p,n));
-		data<-SQUIC::DEMO.make_data(p=p,type=type,n=n);
-		file_name=paste("dataset_",type,"_",p,"_",n,".RData",sep = "");
-		save(data,file=file_name, version = 2);
-	}
-
-}
-
-
-DEMO.load_data<-function(type="trid",p=4^5)
+DEMO.load_data<-function(p_power)
 {
 
 	# hard code n=100, all the example synthetic dataset have 100 samples
 	n=100;
+	p=2^p_power;
 
     matrix_folder=system.file("extdata",package = "SQUIC")
 	
     print(sprintf("# Reading Matrix From file: type=%s p=%d n=%d",type,p,n));
 
-	filename=paste(matrix_folder , "/" , "dataset_" , type , "_" , p , "_" , n , ".RData", sep = "");
+	filename=paste(matrix_folder , "/" , "dataset_p", p , "_n" , n , ".RData", sep = "");
 	out<-get(load(filename));
 
 	output <- list(
@@ -113,10 +22,10 @@ DEMO.load_data<-function(type="trid",p=4^5)
 }
 
 
-DEMO.lambda_search<- function(type="trid", p=4^5 ,lambda_sample=.3, K=5, criterion="AIC"){
+DEMO.lambda_search<- function(p_power ,lambda_sample=.3, K=5, criterion="AIC"){
 
   	# Generate data
-	out<-SQUIC::DEMO.load_data(type=type , p=p );
+	out<-SQUIC::DEMO.load_data( p_power = p_power );
 	X_star<-out$X_star;
 	data<-out$data;
 
@@ -157,18 +66,16 @@ DEMO.lambda_search<- function(type="trid", p=4^5 ,lambda_sample=.3, K=5, criteri
 	return(output);
 }
 
-DEMO.performance <- function(type="trid",lambda=0.4,n=100,tol=1e-4,max_iter=10) 
+DEMO.performance <- function(p_power_max,lambda=0.4,n=100,tol=1e-4,max_iter=10) 
 {
-    #Hard coded values
-    p_power_max		<-6;
 
 	time_squic		<-replicate(p_power_max, 0);
 	time_equal		<-replicate(p_power_max, 0);	
 	time_quic		<-replicate(p_power_max, 0);
 
-	for (i in 1:p_power_max) {
+	for (i in 8:p_power_max) {
 
-        p=4^i;
+        p=2^i;
 
         # Generate data
 	    out<-SQUIC::DEMO.load_data(type=type , p=p ,n=n );
