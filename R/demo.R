@@ -116,7 +116,7 @@ DEMO.load_data<-function(type="trid",p=4^5)
 DEMO.lambda_search<- function(type="trid", p=4^5 ,lambda_sample=.3, K=5, criterion="AIC"){
 
   	# Generate data
-	out<-SQUIC::DEMO.load_data(type=type , p=p ,n=n );
+	out<-SQUIC::DEMO.load_data(type=type , p=p );
 	X_star<-out$X_star;
 	data<-out$data;
 
