@@ -16,7 +16,7 @@ DEMO.load_data<-function(p_power,normalize=TRUE)
 	if(normalize){
 		v=apply(data_set$data,1,var);
 		v=1/sqrt(v);
-		D=Matrix::Diagonal(v);
+		D=Matrix::Diagonal(n=length(v),x=v);
 		data_set$data=D%*%data_set$data;
 		output <- list(
 			"data" = out$data, 
