@@ -72,7 +72,7 @@ DEMO.lambda_search<- function(p,n,lambda_sample=.1, K=5){
 		nnzpr_X_set[i]=(Matrix::nnzero(out$X)/nrow(out$X));
 	}
 
-	outputs=list(
+	output=list(
 		"nnzpr_X_set"	  = nnzpr_X_set,
 		"f1_set"     	  = f1_set, 
 		"acc_set"    	  = acc_set,
