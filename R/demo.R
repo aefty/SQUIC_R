@@ -1,5 +1,7 @@
 
-DEMO.load_data<-function(p_power,normalize=TRUE)
+SQUIC::DEMO.dataset_folder="";
+
+SQUIC::DEMO.load_data<-function(p_power,normalize=TRUE)
 {
 
 	# hard code n=100, all the example synthetic dataset have 100 samples
@@ -17,7 +19,7 @@ DEMO.load_data<-function(p_power,normalize=TRUE)
 		v=apply(data_set$data,1,var);
 		v=1/sqrt(v);
 		D=Matrix::Diagonal(n=length(v),x=v);
-		data_set$data=D%*%data_set$data;
+		data_set$data= D%*% data_set$data;
 		output <- list(
 			"data" = out$data, 
 			"X_star" = out$X_star,
@@ -35,7 +37,7 @@ DEMO.load_data<-function(p_power,normalize=TRUE)
 }
 
 
-DEMO.lambda_search<- function(p_power ,lambda_sample=.3, K=5, criterion="AIC"){
+SQUIC::DEMO.lambda_search<- function(p_power ,lambda_sample=.3, K=5, criterion="AIC"){
 
   	# Generate data
 	out<-SQUIC::DEMO.load_data( p_power = p_power );
@@ -79,7 +81,7 @@ DEMO.lambda_search<- function(p_power ,lambda_sample=.3, K=5, criterion="AIC"){
 	return(output);
 }
 
-DEMO.performance <- function(p_power_max,lambda=0.4,n=100,tol=1e-4,max_iter=10) 
+SQUIC::DEMO.performance <- function(p_power_max,lambda=0.4,n=100,tol=1e-4,max_iter=10) 
 {
 
 	time_squic		<-replicate(p_power_max, 0);
@@ -116,7 +118,7 @@ DEMO.performance <- function(p_power_max,lambda=0.4,n=100,tol=1e-4,max_iter=10)
 	return(output);
 }
 
-DEMO.compare <- function(alg,data,lambda=0.5,tol=1e-4,max_iter=10, X_star= NULL) 
+SQUIC::DEMO.compare <- function(alg,data,lambda=0.5,tol=1e-4,max_iter=10, X_star= NULL) 
 {
 	data_t <- Matrix::t(data);
 
