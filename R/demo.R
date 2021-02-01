@@ -34,44 +34,55 @@ DEMO.load_data<-function(p , n , normalize=TRUE)
 }
 
 
-DEMO.lambda_search<- function(p,n,lambda_sample=.3, K=5, criterion="AIC"){
+DEMO.lambda_search<- function(p,n,lambda_sample=.1, K=5){
 
   	# Generate data
-	out<-SQUIC::DEMO.load_data( p=p , n=n );
-	X_star<-out$X_star;
-	data<-out$data;
+	out=SQUIC::DEMO.load_data( p=p , n=n );
+	X_star=out$X_star;
+	data=out$data;
 
 	# Generate a lambda_set
-	out<-SQUIC::SQUIC_S(data=data , lambda_sample=lambda_sample ,lambda_set_length=10);
+	out=SQUIC::SQUIC_S(data=data , lambda_sample=lambda_sample ,lambda_set_length=10);
 	print("SQUIC::SQUIC_S");
 	print(out);
-	lambda_set<-out$lambda_set;
+	lambda_set=out$lambda_set;
 
-	# Do CV on for best lambda
-	out<-SQUIC::SQUIC_CV(data=data , lambda_set=lambda_set , K=K , criterion=criterion );
+	# Do CV on for best lambda using AIC
+	out=SQUIC::SQUIC_CV(data=data , lambda_set=lambda_set , K=K , criterion="AIC" );
 	print("SQUIC::SQUIC_CV AIC");
 	print(out);
-	lambda_opt <- out$lambda_opt;
-	CV_mean    <- out$CV_mean;
+	lambda_opt_AIC=out$lambda_opt_AIC;
+	lambda_opt_BIC=out$lambda_opt_BIC;
+	lambda_opt_AICc=out$lambda_opt_AICc;
 
-	f1_set	    <-replicate(length(lambda_set), 0);
-	acc_set     <-replicate(length(lambda_set), 0);
-	nnzpr_X_set <-replicate(length(lambda_set), 0);	
+	CV_mean_AIC=out$CV_mean_AIC;
+	CV_mean_BIC=out$CV_mean_BIC;
+	CV_mean_AICc=out$CV_mean_AICc;
+
+
+	# Compute the entire lambda path
+	f1_set=replicate(length(lambda_set), 0);
+	acc_set=replicate(length(lambda_set), 0);
+	nnzpr_X_set=replicate(length(lambda_set), 0);	
 	
 	for (i in 1:length(lambda_set)) {
-		out<-SQUIC::DEMO.compare(alg="SQUIC" , data=data , lambda=lambda_set[i] , tol=1e-3 , max_iter=5 , X_star=X_star );
-		f1_set[i]      <-out$f1;
-		acc_set[i]     <-out$acc;
-		nnzpr_X_set[i] <- (Matrix::nnzero(out$X)/nrow(out$X));
+		out=SQUIC::DEMO.compare(alg="SQUIC" , data=data , lambda=lambda_set[i] , tol=1e-3 , max_iter=5 , X_star=X_star );
+		f1_set[i]=out$f1;
+		acc_set[i]=out$acc;
+		nnzpr_X_set[i]=(Matrix::nnzero(out$X)/nrow(out$X));
 	}
 
-	output <- list(
-		"nnzpr_X_set"	 = nnzpr_X_set,
-		"f1_set"     	 = f1_set, 
-		"acc_set"    	 = acc_set,
-		"lambda_opt"     = lambda_opt,				
-		"lambda_set" 	 = lambda_set,
-		"CV_mean"        = CV_mean
+	outputs=list(
+		"nnzpr_X_set"	  = nnzpr_X_set,
+		"f1_set"     	  = f1_set, 
+		"acc_set"    	  = acc_set,
+		"lambda_set" 	  = lambda_set,	
+		"lambda_opt_AIC"  = lambda_opt_AIC,	
+		"lambda_opt_BIC"  = lambda_opt_BIC,	
+		"lambda_opt_AICc" = lambda_opt_AICc,								
+		"CV_mean_AIC"	  = CV_mean_AIC,
+		"CV_mean_BIC"	  = CV_mean_BIC,
+		"CV_mean_AICc"	  = CV_mean_AICc			
 	);
 
 	return(output);
