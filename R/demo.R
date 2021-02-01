@@ -8,11 +8,11 @@ DEMO.load_data<-function(p_power,normalize=TRUE)
 	n=100;
 	p=2^p_power;
 
-    matrix_folder=system.file("extdata",package = "SQUIC")
+    matrix_folder=DEMO.dataset_folder;
 	
     print(sprintf("# Reading Matrix From file: p=%d n=%d",p,n));
 
-	filename=paste(matrix_folder , "/" , "dataset_p", p , "_n" , n , ".RData", sep = "");
+	filename=paste(matrix_folder , "/" , "p", p , "_n" , n , ".RData", sep = "");
 	out<-get(load(filename));
 
 	if(normalize){
