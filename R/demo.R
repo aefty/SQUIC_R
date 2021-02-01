@@ -1,14 +1,12 @@
 
-DEMO.dataset_folder="";
-
 DEMO.set_dataset_folder<-function(folder){
-	assign("DEMO.dataset_folder", folder, envir = .GlobalEnv)
+	assign("SQUIC_DEMO_dataset_folder", folder, envir = .GlobalEnv)
 }
 
 DEMO.load_data<-function(p,n,normalize=TRUE)
 {
 
-    matrix_folder=DEMO.dataset_folder;
+    matrix_folder=SQUIC_DEMO_dataset_folder;
 	
     print(sprintf("# Reading Matrix From file: p=%d n=%d",p,n));
 
