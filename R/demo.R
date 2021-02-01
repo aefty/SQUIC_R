@@ -48,8 +48,8 @@ DEMO.lambda_search<- function(p,n,lambda_sample=.1, K=5){
 	lambda_set=out$lambda_set;
 
 	# Do CV on for best lambda using AIC
-	out=SQUIC::SQUIC_CV(data=data , lambda_set=lambda_set , K=K , criterion="AIC" );
-	print("SQUIC::SQUIC_CV AIC");
+	out=SQUIC::SQUIC_CV(data=data , lambda_set=lambda_set , K=K );
+	print("SQUIC::SQUIC_CV");
 	print(out);
 	lambda_opt_AIC=out$lambda_opt_AIC;
 	lambda_opt_BIC=out$lambda_opt_BIC;
