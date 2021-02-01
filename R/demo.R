@@ -2,7 +2,7 @@
 DEMO.dataset_folder="";
 
 DEMO.set_dataset_folder<-function(folder){
-	SQUIC::DEMO.dataset_folder=folder;
+	SQUIC::DEMO.dataset_folder<<-folder;
 }
 
 DEMO.load_data<-function(p_power,normalize=TRUE)
