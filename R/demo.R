@@ -1,9 +1,9 @@
-
-DEMO.set_dataset_folder<-function(folder){
+DEMO.set_dataset_folder<-function(folder)
+{
 	assign("SQUIC_DEMO_dataset_folder", folder, envir = .GlobalEnv)
 }
 
-DEMO.load_data<-function(p,n,normalize=TRUE)
+DEMO.load_data<-function(p , n , normalize=TRUE)
 {
 
     matrix_folder=SQUIC_DEMO_dataset_folder;
@@ -14,10 +14,10 @@ DEMO.load_data<-function(p,n,normalize=TRUE)
 	out<-get(load(filename));
 
 	if(normalize){
-		v=apply(data_set$data,1,var);
+		v=apply(out$data,1,var);
 		v=1/sqrt(v);
 		D=Matrix::Diagonal(n=length(v),x=v);
-		data_set$data= D%*% data_set$data;
+		out$data= as.matrix(D%*% out$data);
 		output <- list(
 			"data" = out$data, 
 			"X_star" = out$X_star,
