@@ -2,15 +2,11 @@
 DEMO.dataset_folder="";
 
 DEMO.set_dataset_folder<-function(folder){
-	SQUIC::DEMO.dataset_folder<<-folder;
+	assign("DEMO.dataset_folder", folder, envir = .GlobalEnv)
 }
 
-DEMO.load_data<-function(p_power,normalize=TRUE)
+DEMO.load_data<-function(p,n,normalize=TRUE)
 {
-
-	# hard code n=100, all the example synthetic dataset have 100 samples
-	n=100;
-	p=2^p_power;
 
     matrix_folder=DEMO.dataset_folder;
 	
@@ -36,15 +32,14 @@ DEMO.load_data<-function(p_power,normalize=TRUE)
 		);
 	}
 
-	
 	return(output);
 }
 
 
-DEMO.lambda_search<- function(p_power ,lambda_sample=.3, K=5, criterion="AIC"){
+DEMO.lambda_search<- function(p,n,lambda_sample=.3, K=5, criterion="AIC"){
 
   	# Generate data
-	out<-SQUIC::DEMO.load_data( p_power = p_power );
+	out<-SQUIC::DEMO.load_data( p=p , n=n );
 	X_star<-out$X_star;
 	data<-out$data;
 
@@ -60,7 +55,6 @@ DEMO.lambda_search<- function(p_power ,lambda_sample=.3, K=5, criterion="AIC"){
 	print(out);
 	lambda_opt <- out$lambda_opt;
 	CV_mean    <- out$CV_mean;
-
 
 	f1_set	    <-replicate(length(lambda_set), 0);
 	acc_set     <-replicate(length(lambda_set), 0);
@@ -85,19 +79,19 @@ DEMO.lambda_search<- function(p_power ,lambda_sample=.3, K=5, criterion="AIC"){
 	return(output);
 }
 
-DEMO.performance <- function(p_power_max,lambda=0.4,n=100,tol=1e-4,max_iter=10) 
+DEMO.performance <- function(p_set,lambda=0.4,n=100,tol=1e-4,max_iter=10) 
 {
 
-	time_squic		<-replicate(p_power_max, 0);
-	time_equal		<-replicate(p_power_max, 0);	
-	time_quic		<-replicate(p_power_max, 0);
+	time_squic		<-replicate(p_set, 0);
+	time_equal		<-replicate(p_set, 0);	
+	time_quic		<-replicate(p_set, 0);
 
-	for (i in 8:p_power_max) {
+	for (i in 1:length(p_set)) {
 
-        p=2^i;
+        p=p_set[i];
 
         # Generate data
-	    out<-SQUIC::DEMO.load_data(p=p);
+	    out<-SQUIC::DEMO.load_data( p=p , n=n );
 	    X_star<-out$X_star;
 	    data_full<-out$data;
 
