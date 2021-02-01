@@ -10,7 +10,7 @@ DEMO.load_data<-function(p , n , normalize=TRUE)
 	
     print(sprintf("# Reading Matrix From file: p=%d n=%d",p,n));
 
-	filename=paste(matrix_folder , "/" , "p", p , "_n" , n , ".RData", sep = "");
+	filename=paste(matrix_folder , "/" , "p", format(p, scientific = FALSE) , "_n" , format(n, scientific = FALSE) , ".RData", sep = "");
 	out<-get(load(filename));
 
 	if(normalize){
