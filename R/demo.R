@@ -76,7 +76,7 @@ DEMO.lambda_search<- function(p,n,lambda_sample=.1, K=5){
 	CV_mean_BIC=out$CV_mean_BIC;
 	CV_mean_AICc=out$CV_mean_AICc;
 
-	time_CV_S = Sys.time()- time_CV_S;
+	time_CV_S = as.numeric(Sys.time()- time_CV_S);
 
 	# Compute the entire lambda path
 	f1_set=replicate(length(lambda_set), 0);
@@ -89,7 +89,7 @@ DEMO.lambda_search<- function(p,n,lambda_sample=.1, K=5){
 		out=SQUIC::DEMO.compare(alg="SQUIC" , data=data , lambda=lambda_set[i] , tol=1e-3 , max_iter=5 , X_star=X_star );
 		f1_set[i]=out$f1;
 		nnzpr_X_set[i]=(Matrix::nnzero(out$X)/nrow(out$X));
-		time_set[i]= Sys.time()- time_set[i];
+		time_set[i]= as.numeric(Sys.time()- time_set[i]);
 	}
 
 	output=list(
