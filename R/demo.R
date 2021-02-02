@@ -85,14 +85,12 @@ DEMO.lambda_search<- function(p,n,lambda_sample=.1, K=5){
 	for (i in 1:length(lambda_set)) {
 		out=SQUIC::DEMO.compare(alg="SQUIC" , data=data , lambda=lambda_set[i] , tol=1e-3 , max_iter=5 , X_star=X_star );
 		f1_set[i]=out$f1;
-		acc_set[i]=out$acc;
 		nnzpr_X_set[i]=(Matrix::nnzero(out$X)/nrow(out$X));
 	}
 
 	output=list(
 		"nnzpr_X_set"	  = nnzpr_X_set,
 		"f1_set"     	  = f1_set, 
-		"acc_set"    	  = acc_set,
 		"lambda_set" 	  = lambda_set,	
 		"lambda_opt_AIC"  = lambda_opt_AIC,	
 		"lambda_opt_BIC"  = lambda_opt_BIC,	
