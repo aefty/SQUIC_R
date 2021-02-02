@@ -192,7 +192,7 @@ DEMO.compare <- function(alg,data,lambda=0.5,tol=1e-4,max_iter=10, X_star= NULL)
 		print("#Computing F1 Score & Accuracy 2")
 		X_label <-  as.vector( ((X)!=0)*1 );
 		X_star_label <-  as.vector( ((X_star)!=0)*1 );
-		F1=MLmetrics::F1_Score(X_star_label,X_label, positive = "1"),
+		F1=MLmetrics::F1_Score(X_star_label,X_label, positive = "1");
 		time_s=Sys.time()-time_s;
 		print(sprintf("time %f",time_s));
 
