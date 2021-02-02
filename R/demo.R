@@ -1,3 +1,20 @@
+DEMO.F1 <-function(X,X_star)
+{
+	X@x=X@x*0+1;
+	X_star@x=X_star@x*0+1;
+
+	temp=X-X_star;
+
+	TP=length(which(temp@x==0));
+	FP_plus_FN=length(which(temp@x != 0));
+		
+		
+	F1= TP / ( TP + 0.5*( FP_plus_FN ) );
+
+	return(F1);
+}
+
+
 DEMO.set_dataset_folder<-function(folder)
 {
 	assign("SQUIC_DEMO_dataset_folder", folder, envir = .GlobalEnv)
@@ -163,38 +180,26 @@ DEMO.compare <- function(alg,data,lambda=0.5,tol=1e-4,max_iter=10, X_star= NULL)
 	if(!is.null(X_star))
 	{
 		# Convert matrix to labels
+		time_s=Sys.time()
         print("#Computing F1 Score & Accuracy 1")
+		print(sprintf("F1 %f",DEMO.F1(X,X_star)));
+		time_s=Sys.time()-time_s;
 
-		X_1=X;
-		X_1@x=X_1@x*0+1;
-
-		X_star_1=X_star;
-		X_star_1@x=X_star_1@x*0+1;
-
-		temp=X_1-X_star_1;
-
-		TP=length(which(temp@x==0));
-		FP_plus_FN=length(which(temp@x != 0));
-		
-		
-		F1= TP / ( TP + 0.5*( FP_plus_FN ) );
+		print(sprintf("time %f",time_s));
 
 
-		print("F1 %f",F1);
-
-
-	print("#Computing F1 Score & Accuracy 2")
-
-
-
+		time_s=Sys.time()
+		print("#Computing F1 Score & Accuracy 2")
 		X_label <-  as.vector( ((X)!=0)*1 );
 		X_star_label <-  as.vector( ((X_star)!=0)*1 );
+		F1=MLmetrics::F1_Score(X_star_label,X_label, positive = "1"),
+		time_s=Sys.time()-time_s;
+		print(sprintf("time %f",time_s));
 
 		output <- list(
 			"time" = time_end-time_start,
 			"X"    = X, 
-			"f1"   = MLmetrics::F1_Score(X_star_label,X_label, positive = "1"),
-			"acc"  = MLmetrics::Accuracy(X_star_label,X_label)				
+			"f1"   = F1			
 		);
 
 	}else{
