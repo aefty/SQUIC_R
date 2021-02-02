@@ -56,6 +56,8 @@ DEMO.lambda_search<- function(p,n,lambda_sample=.1, K=5){
 	X_star=out$X_star;
 	data=out$data;
 
+	time_CV_S = Sys.time();
+	
 	# Generate a lambda_set
 	out=SQUIC::SQUIC_S(data=data , lambda_sample=lambda_sample ,lambda_set_length=10);
 	print("SQUIC::SQUIC_S");
@@ -74,19 +76,26 @@ DEMO.lambda_search<- function(p,n,lambda_sample=.1, K=5){
 	CV_mean_BIC=out$CV_mean_BIC;
 	CV_mean_AICc=out$CV_mean_AICc;
 
+	time_CV_S = Sys.time()- time_CV_S;
+
 	# Compute the entire lambda path
 	f1_set=replicate(length(lambda_set), 0);
 	acc_set=replicate(length(lambda_set), 0);
 	nnzpr_X_set=replicate(length(lambda_set), 0);	
+	time_set=replicate(length(lambda_set), 0);	
 	
 	for (i in 1:length(lambda_set)) {
+		time_set[i]= Sys.time();
 		out=SQUIC::DEMO.compare(alg="SQUIC" , data=data , lambda=lambda_set[i] , tol=1e-3 , max_iter=5 , X_star=X_star );
 		f1_set[i]=out$f1;
 		nnzpr_X_set[i]=(Matrix::nnzero(out$X)/nrow(out$X));
+		time_set[i]= Sys.time()- time_set[i];
 	}
 
 	output=list(
-		"nnzpr_X_set"	  = nnzpr_X_set,
+		"time_set"        = time_set,
+		"time_CV_S"       = time_CV_S,
+ 		"nnzpr_X_set"	  = nnzpr_X_set,
 		"f1_set"     	  = f1_set, 
 		"lambda_set" 	  = lambda_set,	
 		"lambda_opt_AIC"  = lambda_opt_AIC,	
@@ -175,7 +184,7 @@ DEMO.compare <- function(alg,data,lambda=0.5,tol=1e-4,max_iter=10, X_star= NULL)
 	if(!is.null(X_star))
 	{
 		# Convert matrix to labels
-        print("#Computing F1 Score & Accuracy 1")
+        print("#Computing F1-Score & Accuracy")
 		F1=DEMO.F1(X,X_star);
 
 		output <- list(
