@@ -164,6 +164,33 @@ DEMO.compare <- function(alg,data,lambda=0.5,tol=1e-4,max_iter=10, X_star= NULL)
 	{
 		# Convert matrix to labels
         print("#Computing F1 Score & Accuracy")
+
+		TP=0;
+		TN=0;
+		FP=0
+		FN=0;
+		
+		for( i in 1:p)
+		{
+			for(j in 1:p)
+			{
+				TP=TP+(X_star[i,j]!=0 & X[i,j]!=0)*1;
+				TN=TN+(X_star[i,j]==0 & X[i,j]==0)*1;
+				FP=FP+(X_star[i,j]==0 & X[i,j]!=1)*1;
+				TN=TN+(X_star[i,j]==0 & X[i,j]==0)*1;	
+			}
+		}
+
+		F1= TP / ( TP + 0.5*( FP+FN ) );
+
+
+		print("F1 %f",F1);
+
+
+
+
+
+
 		X_label <-  as.vector( ((X)!=0)*1 );
 		X_star_label <-  as.vector( ((X_star)!=0)*1 );
 

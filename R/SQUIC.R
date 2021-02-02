@@ -92,7 +92,6 @@ SQUIC_S<-function(data, lambda_sample=.5,lambda_set_length=10 , M=NULL){
 # Cross validation
 SQUIC_CV<-function(data , lambda_set, K=5, drop_tol=1e-3,term_tol=1e-2 , max_iter=5  , M=NULL , X0=NULL , W0=NULL)
 {
-
 	p		= nrow(data);
 	n_full	= ncol(data);
 
@@ -114,8 +113,8 @@ SQUIC_CV<-function(data , lambda_set, K=5, drop_tol=1e-3,term_tol=1e-2 , max_ite
 		n_train		= ncol(data_train);
 		n_test		= ncol(data_test);
 
-		for (l in 1:nlambda){ # for each lambda in the lambda set
-
+		for (l in 1:nlambda) # for each lambda in the lambda set
+		{ 
 			# Set of lambda 
 			lambda	=lambda_set[l];
 	
@@ -124,20 +123,19 @@ SQUIC_CV<-function(data , lambda_set, K=5, drop_tol=1e-3,term_tol=1e-2 , max_ite
 
 			#Extract the results form SQUIC
 			X			= out$X;
-			logdetX		= out$info_logdetX_Y1;
-			trXS_test	= out$info_trXS_Y2;
+			logdetX_Y1	= out$info_logdetX_Y1;
+			trXS_Y2		= out$info_trXS_Y2;
 			nnzX		= Matrix::nnzero(X);
 
 			#logliklihood
-			logliklihood = (-p*log(2*3.14)  +  logdetX - trXS_test )*n_test/2;
+			logliklihood = (-p*log(2*3.14)  +  logdetX_Y1 - trXS_Y2 )*n_test/2;
 
 			# The inverse covariance is symmetric matrix
 			num_params = (p+(nnzX-p)/2);
 
-			CV_AIC[k,l]	 = (2*num_params - 2*logliklihood) ;
+			CV_AIC[k,l]	 = (2*num_params - 2*logliklihood);
 			CV_BIC[k,l]	 = (log(n_train)*num_params - 2*logliklihood) ;
 			CV_AICc[k,l] = (2*num_params - 2*logliklihood) + 2*(num_params^2+num_params)/(n_train-num_params-1);
-
 		}
 	}
 
