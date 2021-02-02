@@ -8,7 +8,6 @@ DEMO.F1 <-function(X,X_star)
 	TP=length(which(temp@x==0));
 	FP_plus_FN=length(which(temp@x != 0));
 		
-		
 	F1= TP / ( TP + 0.5*( FP_plus_FN ) );
 
 	return(F1);
@@ -22,7 +21,6 @@ DEMO.set_dataset_folder<-function(folder)
 
 DEMO.load_data<-function(p , n , normalize=TRUE)
 {
-
     matrix_folder=SQUIC_DEMO_dataset_folder;
 	
     print(sprintf("# Reading Matrix From file: p=%d n=%d",p,n));
@@ -75,7 +73,6 @@ DEMO.lambda_search<- function(p,n,lambda_sample=.1, K=5){
 	CV_mean_AIC=out$CV_mean_AIC;
 	CV_mean_BIC=out$CV_mean_BIC;
 	CV_mean_AICc=out$CV_mean_AICc;
-
 
 	# Compute the entire lambda path
 	f1_set=replicate(length(lambda_set), 0);
@@ -178,22 +175,8 @@ DEMO.compare <- function(alg,data,lambda=0.5,tol=1e-4,max_iter=10, X_star= NULL)
 	if(!is.null(X_star))
 	{
 		# Convert matrix to labels
-		time_s=Sys.time()
         print("#Computing F1 Score & Accuracy 1")
-		print(sprintf("F1 %f",DEMO.F1(X,X_star)));
-		time_s=Sys.time()-time_s;
-
-		print(sprintf("time %f",time_s));
-
-
-		time_s=Sys.time()
-		print("#Computing F1 Score & Accuracy 2")
-		X_label <-  as.vector( ((X)!=0)*1 );
-		X_star_label <-  as.vector( ((X_star)!=0)*1 );
-		F1=MLmetrics::F1_Score(X_star_label,X_label, positive = "1");
-		time_s=Sys.time()-time_s;
-		print(sprintf("F1 %f",F1));
-		print(sprintf("time %f",time_s));
+		F1=DEMO.F1(X,X_star);
 
 		output <- list(
 			"time" = time_end-time_start,
