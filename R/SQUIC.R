@@ -103,7 +103,7 @@ SQUIC_CV<-function(data , lambda_set, K=5, drop_tol=1e-3,term_tol=1e-2 , max_ite
 	# Cross Validation Matrix
 	CV_AIC	= matrix(0,nrow=K,ncol=nlambda);
 	CV_BIC	= matrix(0,nrow=K,ncol=nlambda);
-	CV_AICc	= matrix(0,nrow=K,ncol=nlambda);
+	CV_LL	= matrix(0,nrow=K,ncol=nlambda);
 
 	for (k in 1:K) # For each active set of sample indicies ...
 	{
@@ -135,26 +135,27 @@ SQUIC_CV<-function(data , lambda_set, K=5, drop_tol=1e-3,term_tol=1e-2 , max_ite
 
 			CV_AIC[k,l]	 = (2*num_params - 2*logliklihood);
 			CV_BIC[k,l]	 = (log(n_train)*num_params - 2*logliklihood) ;
-			CV_AICc[k,l] = (2*num_params - 2*logliklihood) + 2*(num_params^2+num_params)/(n_train-num_params-1);
+			CV_LL[k,l] =  - logliklihood;
+			
 		}
 	}
 
 	# Find the smallest value in the CV matrix and select the corresponding lambda
 	CV_mean_AIC	 = colMeans(CV_AIC);
 	CV_mean_BIC	 = colMeans(CV_BIC);
-	CV_mean_AICc = colMeans(CV_AICc);
+	CV_mean_LL = colMeans(CV_LL);
 
 	lambda_opt_AIC	= lambda_set[which.min(CV_mean_AIC)];
 	lambda_opt_BIC	= lambda_set[which.min(CV_mean_BIC)];
-	lambda_opt_AICc	= lambda_set[which.min(CV_mean_AICc)];
+	lambda_opt_LL	= lambda_set[which.min(CV_mean_LL)];
 
 	output	= list(
 		"lambda_opt_AIC"	= lambda_opt_AIC,
 		"lambda_opt_BIC"	= lambda_opt_BIC,
-		"lambda_opt_AICc"	= lambda_opt_AICc,				
+		"lambda_opt_LL"	    = lambda_opt_LL,				
     	"CV_mean_AIC"		= CV_mean_AIC,
     	"CV_mean_BIC"		= CV_mean_BIC,
-    	"CV_mean_AICc"		= CV_mean_AICc			
+    	"CV_mean_LL"		= CV_mean_LL			
 	);
 
 	return(output);

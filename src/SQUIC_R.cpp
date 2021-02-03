@@ -1,5 +1,6 @@
 // -*- mode: C++; c-indent-level: 4; c-basic-offset: 4; indent-tabs-mode: nil; -*-
 // we only include RcppArmadillo.h which pulls Rcpp.h in for us
+#define ARMA_64BIT_WORD 1
 #include "RcppArmadillo.h"
 #include <stdio.h>
 #include <assert.h>
