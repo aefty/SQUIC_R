@@ -30,6 +30,8 @@ DEMO.load_data<-function(p , n , normalize=TRUE)
 
 	if(normalize){
 		v=apply(out$data,1,var);
+		# R uses n-1 as denominator .. here we fore n
+		v = v*(n-1)/n;
 		v=1/sqrt(v);
 		D=Matrix::Diagonal(n=length(v),x=v);
 		out$data= as.matrix(D%*% out$data);
