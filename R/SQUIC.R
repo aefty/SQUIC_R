@@ -52,29 +52,21 @@ SQUIC <- function(Y1, lambda, max_iter, drop_tol, term_tol,verbose=1, mode=0, M=
    return(out);
 }
 
-SQUIC_S<-function(data, lambda_sample=.5,lambda_set_length=10 , M=NULL){
+SQUIC_S<-function(data, lambda_sample=.2,lambda_set_length=10 , M=NULL, qtl_up=0.99, qtl_down=0.90 ){
 
-	p = nrow(data);	
-	
 	# Get sample covarinace matrix by running SQUIC with max_iter=0;
 	squic_output = SQUIC::SQUIC(Y1=data,lambda=lambda_sample, max_iter=0, drop_tol=0, term_tol=0,verbose=0, M=M );
 
-	# Get absolute value of the max and mean of nonzeros in S
-	S = squic_output$S;
-	S_abs_vec = abs(S@x);
+	S_abs_tri_no_diag=abs(triu(squic_output$S,k=1));
 
-	S_abs_max		= max(S_abs_vec);
-	S_abs_min		= min(S_abs_vec);
-	S_abs_mean		= mean(S_abs_vec);
-
-	up	= (lambda_sample + S_abs_mean)/2;
-	low	= (lambda_sample + S_abs_min)/2;
+	up	= quantile(S_abs_tri_no_diag@x,c(qtl_up))
+	low	= quantile(S_abs_tri_no_diag@x,c(qtl_down))
 
 	delta		= (low-up)/(lambda_set_length-1);
 	lambda_set	= seq(up , low , delta);
 	
 	output	= list(
-		"S" = S, 
+		"S"             = squic_output$S, 
 		"lambda_set"	= lambda_set 					
 	);
 
