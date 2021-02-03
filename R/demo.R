@@ -70,7 +70,7 @@ DEMO.lambda_search<- function(p,n,lambda_sample=.1, K=5){
 	print("SQUIC::SQUIC_CV");
 	lambda_opt_AIC=out$lambda_opt_AIC;
 	lambda_opt_BIC=out$lambda_opt_BIC;
-	lambda_opt_AICc=out$lambda_opt_AICc;
+	lambda_opt_LL=out$lambda_opt_LL;
 
 	CV_mean_AIC=out$CV_mean_AIC;
 	CV_mean_BIC=out$CV_mean_BIC;
