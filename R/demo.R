@@ -61,20 +61,18 @@ DEMO.lambda_search<- function(p,n,lambda_sample=.1, K=5){
 	# Generate a lambda_set
 	out=SQUIC::SQUIC_S(data=data , lambda_sample=lambda_sample ,lambda_set_length=10);
 	print("SQUIC::SQUIC_S");
-	print(out);
 	lambda_set=out$lambda_set;
 
 	# Do CV on for best lambda using AIC
 	out=SQUIC::SQUIC_CV(data=data , lambda_set=lambda_set , K=K );
 	print("SQUIC::SQUIC_CV");
-	print(out);
 	lambda_opt_AIC=out$lambda_opt_AIC;
 	lambda_opt_BIC=out$lambda_opt_BIC;
 	lambda_opt_AICc=out$lambda_opt_AICc;
 
 	CV_mean_AIC=out$CV_mean_AIC;
 	CV_mean_BIC=out$CV_mean_BIC;
-	CV_mean_AICc=out$CV_mean_AICc;
+	CV_mean_LL=out$CV_mean_LL;
 
 	time_CV_S = as.numeric(Sys.time()- time_CV_S);
 
@@ -100,10 +98,10 @@ DEMO.lambda_search<- function(p,n,lambda_sample=.1, K=5){
 		"lambda_set" 	  = lambda_set,	
 		"lambda_opt_AIC"  = lambda_opt_AIC,	
 		"lambda_opt_BIC"  = lambda_opt_BIC,	
-		"lambda_opt_AICc" = lambda_opt_AICc,								
+		"lambda_opt_LL"   = lambda_opt_LL								
 		"CV_mean_AIC"	  = CV_mean_AIC,
 		"CV_mean_BIC"	  = CV_mean_BIC,
-		"CV_mean_AICc"	  = CV_mean_AICc			
+		"CV_mean_LL"	  = CV_mean_LL			
 	);
 
 	return(output);
