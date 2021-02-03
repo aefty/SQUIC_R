@@ -66,21 +66,15 @@ SQUIC_S<-function(data, lambda_sample=.5,lambda_set_length=10 , M=NULL){
 	S_abs_max		= max(S_abs_vec);
 	S_abs_min		= min(S_abs_vec);
 	S_abs_mean		= mean(S_abs_vec);
-	S_abs_sd		= sd(S_abs_vec);
-	S_nnz_per_row	= length(S_abs_vec)/p;
 
-	up	= (lambda_sample + S_abs_max)/2;
+	up	= (lambda_sample + S_abs_mean)/2;
 	low	= (lambda_sample + S_abs_min)/2;
 
 	delta		= (low-up)/(lambda_set_length-1);
 	lambda_set	= seq(up , low , delta);
 	
 	output	= list(
-		"S_nnz_per_row" = S_nnz_per_row, 
-		"S_abs_max"		= S_abs_max, 
-		"S_abs_min" 	= S_abs_min, 
-		"S_abs_mean"	= S_abs_mean, 
-		"S_abs_sd" 		= S_abs_sd,
+		"S" = S, 
 		"lambda_set"	= lambda_set 					
 	);
 
