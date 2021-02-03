@@ -52,7 +52,7 @@ SQUIC <- function(Y1, lambda, max_iter, drop_tol, term_tol,verbose=1, mode=0, M=
    return(out);
 }
 
-SQUIC_S<-function(data, lambda_sample=.2,lambda_set_length=10 , M=NULL, qtl_up=0.99, qtl_down=0.90 ){
+SQUIC_S<-function(data, lambda_sample=.2,lambda_set_length=10 , M=NULL, qtl_up=0.99, qtl_down=0.75 ){
 
 	# Get sample covarinace matrix by running SQUIC with max_iter=0;
 	squic_output = SQUIC::SQUIC(Y1=data,lambda=lambda_sample, max_iter=0, drop_tol=0, term_tol=0,verbose=0, M=M );
