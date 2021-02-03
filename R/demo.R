@@ -100,7 +100,7 @@ DEMO.lambda_search<- function(p,n,lambda_sample=.1, K=5){
 		"lambda_set" 	  = lambda_set,	
 		"lambda_opt_AIC"  = lambda_opt_AIC,	
 		"lambda_opt_BIC"  = lambda_opt_BIC,	
-		"lambda_opt_LL"   = lambda_opt_LL								
+		"lambda_opt_LL"   = lambda_opt_LL,								
 		"CV_mean_AIC"	  = CV_mean_AIC,
 		"CV_mean_BIC"	  = CV_mean_BIC,
 		"CV_mean_LL"	  = CV_mean_LL			
