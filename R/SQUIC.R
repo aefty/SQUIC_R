@@ -156,7 +156,7 @@ SQUIC_CVX<-function(data , lambda=.5 , lambda_factor=1/1.1 , R=20 , K=5 , criter
 
 			if( CV_mean[r-2] < CV_mean[r-1] )
 			{
-				print(sprintf("# Optimal lambda=%f %f", lambda));
+				print(sprintf("# Optimal lambda=%f \n", lambda));
 				break;
 			}
 		}
@@ -199,7 +199,7 @@ SQUIC_CVX<-function(data , lambda=.5 , lambda_factor=1/1.1 , R=20 , K=5 , criter
 		CV_mean <- c(CV_mean, mean(CV));
 		lambda_set <- c(lambda_set, lambda);
 
-		print(sprintf("# Iteration %d - lambda=%f %s=%f  ratio=%f", r, lambda, criterion, CV_mean[r]));
+		print(sprintf("# Iteration %d - lambda=%f %s=%f  ratio=%f \n", r, lambda, criterion, CV_mean[r]));
 		
 		lambda = lambda*lambda_factor;
 	}
