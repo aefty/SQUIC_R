@@ -1,9 +1,8 @@
 usethis::use_package("Matrix") 
-usethis::use_package("MASS") # Use for multivriate data generation
 usethis::use_package("MLmetrics") # Use for multivriate data generation
 
 # For validation 
-usethis::use_package("BigQuic") # Use for multivriate data generation
+usethis::use_package("BigQuic") 
 
 # Here we set the envioerment variable KMP_DUPLICATE_LIB_OK=TRUE
 # This is needed for Mac due to potential conflict with other OMP versions
@@ -52,32 +51,23 @@ SQUIC <- function(Y1, lambda, max_iter, drop_tol, term_tol,verbose=1, mode=0, M=
    return(out);
 }
 
-SQUIC_S<-function(data, lambda_sample=.2,lambda_set_length=10 , M=NULL, qtl_up=0.99, qtl_down=0.75 ){
+# Sparse Sample covariance matrix
+SQUIC_S<-function(data, lambda_sample=.2, M=NULL){
 
 	# Get sample covarinace matrix by running SQUIC with max_iter=0;
 	squic_output = SQUIC::SQUIC(Y1=data,lambda=lambda_sample, max_iter=0, drop_tol=0, term_tol=0,verbose=0, M=M );
 
-	S_abs_tri_no_diag=abs(triu(squic_output$S,k=1));
-
-	up	= quantile(S_abs_tri_no_diag@x,c(qtl_up))
-	low	= quantile(S_abs_tri_no_diag@x,c(qtl_down))
-
-	delta		= (low-up)/(lambda_set_length-1);
-	lambda_set	= seq(up , low , delta);
-	
 	output	= list(
-		"S"             = squic_output$S, 
-		"lambda_set"	= lambda_set 					
+		"S"             = squic_output$S					
 	);
 
 	return(output);
 }
 
-
-
 # Cross validation
-SQUIC_CV<-function(data , lambda_set, K=5, drop_tol=1e-3,term_tol=1e-2 , max_iter=5  , M=NULL , X0=NULL , W0=NULL)
+SQUIC_CV<-function(data , lambda_set , K=5 , drop_tol=1e-3 , term_tol=1e-2 , max_iter=3  , M=NULL , X0=NULL , W0=NULL)
 {
+	#Dimensions
 	p		= nrow(data);
 	n_full	= ncol(data);
 
@@ -89,9 +79,9 @@ SQUIC_CV<-function(data , lambda_set, K=5, drop_tol=1e-3,term_tol=1e-2 , max_ite
 	# Cross Validation Matrix
 	CV_AIC	= matrix(0,nrow=K,ncol=nlambda);
 	CV_BIC	= matrix(0,nrow=K,ncol=nlambda);
-	CV_LL	= matrix(0,nrow=K,ncol=nlambda);
 
-	for (k in 1:K) # For each active set of sample indicies ...
+	# For each active set of sample indicies ...
+	for (k in 1:K) 
 	{
 		# Construct the test and train data
 		data_train	= data[,-active_set[[k]]];
@@ -99,7 +89,8 @@ SQUIC_CV<-function(data , lambda_set, K=5, drop_tol=1e-3,term_tol=1e-2 , max_ite
 		n_train		= ncol(data_train);
 		n_test		= ncol(data_test);
 
-		for (l in 1:nlambda) # for each lambda in the lambda set
+		# for each lambda in the lambda set
+		for (l in 1:nlambda) 
 		{ 
 			# Set of lambda 
 			lambda	=lambda_set[l];
@@ -121,27 +112,105 @@ SQUIC_CV<-function(data , lambda_set, K=5, drop_tol=1e-3,term_tol=1e-2 , max_ite
 
 			CV_AIC[k,l]	 = (2*num_params - 2*logliklihood);
 			CV_BIC[k,l]	 = (log(n_train)*num_params - 2*logliklihood) ;
-			CV_LL[k,l] =  - logliklihood;
 			
 		}
 	}
 
 	# Find the smallest value in the CV matrix and select the corresponding lambda
-	CV_mean_AIC	 = colMeans(CV_AIC);
-	CV_mean_BIC	 = colMeans(CV_BIC);
-	CV_mean_LL = colMeans(CV_LL);
+	CV_AIC_mean	 = colMeans(CV_AIC);
+	CV_BIC_mean	 = colMeans(CV_BIC);
 
-	lambda_opt_AIC	= lambda_set[which.min(CV_mean_AIC)];
-	lambda_opt_BIC	= lambda_set[which.min(CV_mean_BIC)];
-	lambda_opt_LL	= lambda_set[which.min(CV_mean_LL)];
+	lambda_opt_AIC	= lambda_set[which.min(CV_AIC_mean)];
+	lambda_opt_BIC	= lambda_set[which.min(CV_BIC_mean)];
 
 	output	= list(
-		"lambda_opt_AIC"	= lambda_opt_AIC,
-		"lambda_opt_BIC"	= lambda_opt_BIC,
-		"lambda_opt_LL"	    = lambda_opt_LL,				
-    	"CV_mean_AIC"		= CV_mean_AIC,
-    	"CV_mean_BIC"		= CV_mean_BIC,
-    	"CV_mean_LL"		= CV_mean_LL			
+		"CV_AIC_mean"		= CV_AIC_mean,
+		"CV_BIC_mean"		= CV_BIC_mean,	
+		"lambda_opt_AIC"	= lambda_opt_AIC,		
+		"lambda_opt_BIC"	= lambda_opt_BIC				
+	);
+
+	return(output);
+}
+
+# Cross validation auto search
+SQUIC_CVX<-function(data , lambda=.5 , lambda_factor=1/1.1 , R=20 , K=5 , criterion="AIC" , drop_tol=1e-3 , term_tol=1e-2 , max_iter=3 , M=NULL , X0=NULL , W0=NULL)
+{
+	#Dimensions
+	p		= nrow(data);
+	n_full	= ncol(data);
+
+	#Construct active sample sets
+	active_set	= split(1:n_full, rep(1:K, length = n_full));
+
+	# Cross Validation Matrix
+	CV	= vector(length=K);
+	CV_mean = c();
+	lambda_set = c();
+
+	for (r in 1:R) # Line Searh iteration
+	{
+
+		# Break condition
+		if(length(CV_mean)>1){
+
+			if( CV_mean[r-2] < CV_mean[r-1] )
+			{
+				print(sprintf("# Optimal lambda=%f %f", lambda));
+				break;
+			}
+		}
+
+		for (k in 1:K) # For each active set of sample indicies ...
+		{
+			# Construct the test and train data
+			data_train	= data[,-active_set[[k]]];
+			data_test	= data[,active_set[[k]]];
+			n_train		= ncol(data_train);
+			n_test		= ncol(data_test);
+
+			# run a rough (low tolerences and iterations)
+			out	= SQUIC::SQUIC( Y1=data_train , lambda=lambda , max_iter=max_iter , drop_tol=drop_tol , term_tol=term_tol , verbose=0 , M=M , X0=X0 , W0=W0 , Y2=data_test );
+
+			#Extract the results form SQUIC
+			X			= out$X;
+			logdetX_Y1	= out$info_logdetX_Y1;
+			trXS_Y2		= out$info_trXS_Y2;
+			nnzX		= Matrix::nnzero(X);
+
+			#logliklihood
+			logliklihood = (-p*log(2*3.14)  +  logdetX_Y1 - trXS_Y2 )*n_test/2;
+
+			# The inverse covariance is symmetric matrix
+			num_params = (p+(nnzX-p)/2);
+
+			if(criterion=="AIC")
+			{
+				CV[k] = (2*num_params - 2*logliklihood);
+			}else if(criterion=="BIC")
+			{
+				CV[k] = (log(n_train)*num_params - 2*logliklihood) ;
+			}else{	
+				stop("Unkown Cirterion");
+			}
+		
+		}
+
+		CV_mean <- c(CV_mean, mean(CV));
+		lambda_set <- c(lambda_set, lambda);
+
+		print(sprintf("# Iteration %d - lambda=%f %s=%f  ratio=%f", r, lambda, criterion, CV_mean[r]));
+		
+		lambda = lambda*lambda_factor;
+	}
+
+	# Find the smallest value in the CV matrix and select the corresponding lambda
+	lambda_opt	= lambda_set[which.min(CV_mean)];
+
+	output	= list(
+		"lambda_set"	= lambda_set,
+		"CV_mean"		= CV_mean,
+		"lambda_opt"	= lambda_opt			
 	);
 
 	return(output);

@@ -51,6 +51,24 @@ DEMO.load_data<-function(p , n , normalize=TRUE)
 }
 
 
+DEMO.CVX<- function(p,n, lambda=.3 , lambda_factor = 1/1.1, R=20 ){
+
+	out=SQUIC::DEMO.load_data( p=p , n=n );
+	X_star=out$X_star;
+	data=out$data;
+
+	time=Sys.time();
+
+	out=SQUIC::SQUIC_CVX( data , lambda=lambda , R=R, );
+
+	time=Sys.time()-time;
+
+
+
+
+
+}
+
 DEMO.lambda_search<- function(p,n,lambda_sample=.1, K=5){
 
   	# Generate data
@@ -70,11 +88,9 @@ DEMO.lambda_search<- function(p,n,lambda_sample=.1, K=5){
 	print("SQUIC::SQUIC_CV");
 	lambda_opt_AIC=out$lambda_opt_AIC;
 	lambda_opt_BIC=out$lambda_opt_BIC;
-	lambda_opt_LL=out$lambda_opt_LL;
 
 	CV_mean_AIC=out$CV_mean_AIC;
 	CV_mean_BIC=out$CV_mean_BIC;
-	CV_mean_LL=out$CV_mean_LL;
 
 	time_CV_S = as.numeric(Sys.time()- time_CV_S);
 
@@ -102,9 +118,8 @@ DEMO.lambda_search<- function(p,n,lambda_sample=.1, K=5){
 		"lambda_opt_BIC"  = lambda_opt_BIC,	
 		"lambda_opt_LL"   = lambda_opt_LL,								
 		"CV_mean_AIC"	  = CV_mean_AIC,
-		"CV_mean_BIC"	  = CV_mean_BIC,
-		"CV_mean_LL"	  = CV_mean_LL			
-	);
+		"CV_mean_BIC"	  = CV_mean_BIC	
+		);
 
 	return(output);
 }
