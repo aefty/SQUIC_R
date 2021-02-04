@@ -151,15 +151,7 @@ SQUIC_CVX<-function(data , lambda=.5 , lambda_factor=1/1.1 , R=20 , K=5 , criter
 	for (r in 1:R) # Line Searh iteration
 	{
 
-		# Break condition
-		if(length(CV_mean)>1){
-
-			if( CV_mean[r-2] < CV_mean[r-1] )
-			{
-				print(sprintf("# Optimal lambda=%f", lambda));
-				break;
-			}
-		}
+	
 
 		for (k in 1:K) # For each active set of sample indicies ...
 		{
@@ -199,7 +191,18 @@ SQUIC_CVX<-function(data , lambda=.5 , lambda_factor=1/1.1 , R=20 , K=5 , criter
 		CV_mean <- c(CV_mean, mean(CV));
 		lambda_set <- c(lambda_set, lambda);
 
-		print(sprintf("# Iteration %d - lambda=%f %s=%f", r, lambda, criterion, CV_mean[r]));
+		print(sprintf("# Iteration %d Done - lambda=%f %s=%f", r, lambda, criterion, CV_mean[r]));
+
+		# Break condition
+		if(length(CV_mean)>1){
+
+			if( CV_mean[r-2] < CV_mean[r-1] )
+			{
+				print(sprintf("# Optimal lambda=%f", lambda));
+				break;
+			}
+		}
+
 		
 		lambda = lambda*lambda_factor;
 	}
