@@ -51,7 +51,7 @@ DEMO.load_data<-function(p , n , normalize=TRUE)
 }
 
 
-DEMO.CVX<- function(p,n, lambda=.3 , lambda_factor = 1/1.1, R=20 ){
+DEMO.CVX<- function(p,n, lambda=1 , lambda_factor = 1/1.1, R=20 ){
 
 	out=SQUIC::DEMO.load_data( p=p , n=n );
 	X_star=out$X_star;
